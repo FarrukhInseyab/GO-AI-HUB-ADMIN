@@ -284,36 +284,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const forgotPassword = async (email: string) => {
     try {
-      // First, get user info if possible
-      const { data: userData } = await supabase
-        .from('users')
-        .select('contact_name')
-        .eq('email', email)
-        .single();
-      
-      const userName = userData?.contact_name || email.split('@')[0];
-      
-      // Generate a reset token (in production, this should be a secure token)
-      const resetToken = btoa(email + ':' + new Date().getTime());
-      
-      // Call Supabase auth reset
-      const { error, data } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
+      console.log('Initiating password reset for:', email);
 
+      // Use a simpler approach - just call the Supabase API directly
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      
       if (error) {
-        throw new Error(error.message);
+        console.error('Supabase password reset error:', error);
+        throw new Error(error.message || 'Failed to send recovery email');
       }
-      
-      // Send password reset email
-      const emailSent = await emailService.sendPasswordResetEmail(
-        email,
-        userName,
-        resetToken
-      );
-      
-      console.log('Password reset email sent:', emailSent);
 
+      console.log('Password reset email sent successfully via Supabase');
+      return;
     } catch (error) {
       console.error('Password reset error:', error);
       throw error;
@@ -322,13 +304,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const resetPassword = async (password: string) => {
     try {
+      console.log('Attempting to update password');
       const { error } = await supabase.auth.updateUser({
         password: password
       });
 
       if (error) {
+        console.error('Password update error:', error);
         throw new Error(error.message);
       }
+      
+      console.log('Password updated successfully');
     } catch (error) {
       console.error('Password update error:', error);
       throw error;

@@ -19,6 +19,7 @@ const ForgotPasswordForm: React.FC = () => {
     e.preventDefault();
     setError('');
     setSuccess(false);
+    setSuccess(false);
     
     if (!email.trim()) {
       setError('Please enter your email address');
@@ -26,11 +27,12 @@ const ForgotPasswordForm: React.FC = () => {
     }
     
     try {
+      console.log('Submitting forgot password form for:', email);
       await forgotPassword(email);
       setSuccess(true);
     } catch (err: any) {
-      console.error('Password reset error:', err);
-      setError(err.message || 'Failed to send password reset email');
+      console.error('Forgot password form error:', err);
+      setError(err.message || 'Failed to send password reset email. Please try again later.');
     }
   };
 
@@ -62,8 +64,8 @@ const ForgotPasswordForm: React.FC = () => {
           <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-600 rounded-lg flex items-start">
             <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-sm font-medium">Password reset email sent</p>
-              <p className="text-sm mt-1">Please check your email for instructions to reset your password.</p>
+              <p className="text-sm font-medium">Password reset email sent!</p>
+              <p className="text-sm mt-1">Please check your email for instructions to reset your password. If you don't see it, check your spam folder.</p>
             </div>
           </div>
         ) : (
