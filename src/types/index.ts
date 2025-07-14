@@ -1,0 +1,61 @@
+export type User = {
+  id: string;
+  user_id: string;
+  email: string;
+  contact_name: string;
+  company_name: string;
+  country?: string;
+  role: 'User' | 'Evaluator';
+  created_at: string;
+  updated_at: string;
+};
+
+export type Solution = {
+  id: string;
+  user_id: string;
+  company_name: string;
+  country: string;
+  website?: string;
+  revenue?: string;
+  employees?: string;
+  registration_doc?: string;
+  linkedin?: string;
+  solution_name: string;
+  summary: string;
+  description?: string;
+  industry_focus: string[];
+  tech_categories: string[];
+  auto_tags: string[];
+  deployment_model?: string;
+  arabic_support?: boolean;
+  trl?: string;
+  deployment_status?: string;
+  clients?: string;
+  ksa_customization?: boolean;
+  ksa_customization_details?: string;
+  pitch_deck?: string;
+  demo_video?: string;
+  contact_name: string;
+  position?: string;
+  contact_email: string;
+  status: string;
+  approved_at?: Date;
+  created_at?: Date;
+  updated_at?: Date;
+  tech_approval_status?: string;
+  business_approval_status?: string;
+  tech_feedback?: string;
+  business_feedback?: string;
+  product_images?: string[];
+  technical_eval_id?: string;
+  business_eval_id?: string;
+};
+
+export type DashboardStats = {
+  total: number;
+  pending: number;
+  inReview: number;
+  approved: number;
+  rejected: number;
+  needsClarification: number;
+};
