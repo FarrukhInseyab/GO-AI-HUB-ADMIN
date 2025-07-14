@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
 import { supabase } from '../lib/supabase';
+import emailService from '../utils/emailService';
 
 type AuthContextType = {
   user: User | null;
@@ -266,8 +267,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Send confirmation email for new signups
       if (data.user && !data.session) {
-        // TODO: Implement server-side email sending
-        console.log('Confirmation email would be sent to:', data.user.email);
+        // Generate a confirmation token
+        const confirmationToken = btoa(data.user.id + ':' + new Date().getTime());
+        
+        // Send confirmation email
+        await emailService.sendSignupConfirmationEmail(
+          data.user.email,
+          data.user.user_metadata?.name || data.user.email.split('@')[0],
+          confirmationToken
+        );
       }
     } catch (error) {
       throw error;
@@ -284,8 +292,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error(error.message);
       }
 
-      // TODO: Implement server-side email sending
-      console.log('Password reset email would be sent to:', email);
+      // Get user info if possible
+      const { data: userData } = await supabase
+        .from('users')
+        .select('contact_name')
+        .eq('email', email)
+        .single();
+      
+      const userName = userData?.contact_name || email.split('@')[0];
+      
+      // Send password reset email
+      await emailService.sendPasswordResetEmail(
+        email,
+        userName,
+        'passwordResetToken' // Supabase handles the actual token
+      );
 
     } catch (error) {
       console.error('Password reset error:', error);

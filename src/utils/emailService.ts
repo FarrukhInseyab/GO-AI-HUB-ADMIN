@@ -1,7 +1,6 @@
-// Email service placeholder - moved to server-side implementation
-// This file is kept for future server-side email functionality
+// Email service for frontend - calls Supabase Edge Function
 
-// Email templates that can be used by server-side implementation
+// Email templates
 export const emailTemplates = {
   signupConfirmation: (name: string, confirmationLink: string) => ({
     subject: 'Welcome to GO AI HUB - Confirm Your Account',
@@ -52,15 +51,82 @@ export const emailTemplates = {
   })
 };
 
-// Placeholder functions for future server-side implementation
+// Function to call the Supabase Edge Function for sending emails
+export const sendEmail = async (
+  to: string,
+  type: 'signup_confirmation' | 'password_reset',
+  data: {
+    name?: string;
+    token?: string;
+    subject?: string;
+    html?: string;
+  }
+): Promise<boolean> => {
+  try {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('Missing Supabase configuration');
+      return false;
+    }
+    
+    // Get auth token from localStorage
+    const supabaseAuth = localStorage.getItem('supabase.auth.token');
+    let authToken = '';
+    
+    if (supabaseAuth) {
+      try {
+        const parsedAuth = JSON.parse(supabaseAuth);
+        authToken = parsedAuth.access_token || '';
+      } catch (e) {
+        console.error('Error parsing auth token:', e);
+      }
+    }
+    
+    const response = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken || supabaseAnonKey}`
+      },
+      body: JSON.stringify({
+        to,
+        type,
+        ...data
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to send email');
+    }
+    
+    const result = await response.json();
+    return result.success;
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return false;
+  }
+};
+
+// Wrapper functions for specific email types
 export const sendSignupConfirmationEmail = async (
   email: string, 
   name: string, 
   confirmationToken: string
 ): Promise<boolean> => {
-  console.log('Email sending moved to server-side implementation');
-  // TODO: Implement server-side email sending via Supabase Edge Function or API
-  return true;
+  const template = emailTemplates.signupConfirmation(
+    name, 
+    `${window.location.origin}/confirm-email?token=${confirmationToken}`
+  );
+  
+  return sendEmail(email, 'signup_confirmation', {
+    name,
+    token: confirmationToken,
+    subject: template.subject,
+    html: template.html
+  });
 };
 
 export const sendPasswordResetEmail = async (
@@ -68,19 +134,20 @@ export const sendPasswordResetEmail = async (
   name: string, 
   resetToken: string
 ): Promise<boolean> => {
-  console.log('Email sending moved to server-side implementation');
-  // TODO: Implement server-side email sending via Supabase Edge Function or API
-  return true;
-};
-
-export const verifyEmailConnection = async (): Promise<boolean> => {
-  console.log('Email connection verification moved to server-side implementation');
-  // TODO: Implement server-side email verification
-  return true;
+  const template = emailTemplates.passwordReset(
+    name, 
+    `${window.location.origin}/reset-password?token=${resetToken}`
+  );
+  
+  return sendEmail(email, 'password_reset', {
+    name,
+    token: resetToken,
+    subject: template.subject,
+    html: template.html
+  });
 };
 
 export default {
   sendSignupConfirmationEmail,
-  sendPasswordResetEmail,
-  verifyEmailConnection
+  sendPasswordResetEmail
 };
