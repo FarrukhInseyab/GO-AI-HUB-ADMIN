@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
 import { supabase } from '../lib/supabase';
-import emailService from '../utils/emailService';
+import emailService from '../utils/emailService'; // Import the updated email service
 
 interface AuthContextType {
   user: User | null;
@@ -284,31 +284,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const forgotPassword = async (email: string) => {
     try {
-      console.log('Initiating password reset for:', email);
+      setIsLoading(true);
+      console.log('Initiating password reset for:', email.trim().toLowerCase());
 
-      // First try Supabase's built-in password reset
-      try {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password`
-        });
-        
-        if (error) {
-          console.log('Supabase password reset error:', error);
-          // If Supabase's built-in reset fails, we'll fall back to our custom solution
-        } else {
-          console.log('Supabase password reset email sent successfully');
-          return true;
-        }
-      } catch (supabaseError) {
-        console.log('Error with Supabase password reset:', supabaseError);
-        // Continue with custom implementation
-      }
-      
       // Get user data to include name in email
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('contact_name')
-        .eq('email', email)
+        .eq('email', email.trim().toLowerCase())
         .single();
         
       if (userError && !userError.message.includes('No rows found')) {
@@ -316,20 +299,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       // Generate a reset token
-      const resetToken = btoa(email + ':' + new Date().getTime());
+      const resetToken = btoa(email.trim().toLowerCase() + ':' + new Date().getTime());
       
       // Store token in localStorage with expiration (1 hour)
       const tokenData = {
         token: resetToken,
         expires: new Date().getTime() + (60 * 60 * 1000) // 1 hour
       };
-      localStorage.setItem('passwordResetToken:' + email, JSON.stringify(tokenData));
+      localStorage.setItem('passwordResetToken:' + email.trim().toLowerCase(), JSON.stringify(tokenData));
       
-      // Send password reset email using our edge function
+      // Send password reset email using our Nodemailer service
       try {
         const emailSent = await emailService.sendPasswordResetEmail(
-          email,
-          userData?.contact_name || email.split('@')[0],
+          email.trim().toLowerCase(),
+          userData?.contact_name || email.trim().toLowerCase().split('@')[0],
           resetToken
         );
         
@@ -347,11 +330,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Password reset error:', error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const resetPassword = async (password: string) => {
     try {
+      setIsLoading(true);
       console.log('Attempting to update password');
       
       // In a real implementation, we would verify the token from the URL
@@ -381,6 +367,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Password update error:', error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 

@@ -1,7 +1,7 @@
-// Email service for frontend - calls Supabase Edge Function
+// Email service for frontend - calls Nodemailer service
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const EMAIL_SERVICE_URL = import.meta.env.VITE_EMAIL_SERVICE_URL || 'http://localhost:3000';
+const APP_URL = import.meta.env.VITE_APP_URL || window.location.origin;
 
 // Email templates
 export const emailTemplates = {
@@ -61,38 +61,22 @@ export const sendEmail = async (
   data: {
     name?: string;
     token?: string;
-    subject?: string;
-    html?: string;
   }
 ): Promise<boolean> => {
   try {
-    if (!SUPABASE_URL) {
-      console.error('Missing Supabase URL configuration');
-      return false;
-    }
+    console.log('Sending email to:', to, 'with type:', type, 'via Nodemailer service');
     
-    // Get current session token or use anon key as fallback
-    const { data: sessionData } = await supabase.auth.getSession();
-    const accessToken = sessionData.session?.access_token || SUPABASE_ANON_KEY;
-    
-    if (!accessToken) {
-      console.error('No access token available for edge function call');
-      return false;
-    }
-    
-    console.log('Calling edge function with token type:', sessionData.session ? 'Session token' : 'Anon key');
-    console.log('Sending email to:', to, 'with type:', type);
-    
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
+    const response = await fetch(`${EMAIL_SERVICE_URL}/api/send-email`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         to,
         type,
-        ...data
+        name: data.name,
+        token: data.token,
+        appUrl: APP_URL
       })
     });
     
@@ -104,15 +88,15 @@ export const sendEmail = async (
       } catch (e) {
         errorData = { error: errorText };
       }
-      console.error('Email service error:', response.status, errorData, response.headers);
+      console.error('Nodemailer service error:', response.status, errorData);
       throw new Error(errorData.error || `Failed to send email: ${response.status}`);
     }
     
     const result = await response.json();
-    console.log('Email service response:', result);
+    console.log('Nodemailer service response:', result);
     return result.success;
   } catch (error) {
-    console.error('Error sending email through edge function:', error);
+    console.error('Error sending email through Nodemailer service:', error);
     return false;
   }
 };
@@ -124,17 +108,11 @@ export const sendSignupConfirmationEmail = async (
   token: string
 ): Promise<boolean> => {
   console.log('Sending signup confirmation email to:', email);
-  console.log('With token:', token);
-  const template = emailTemplates.signupConfirmation(
-    name, 
-    `${window.location.origin}/confirm-email?token=${token}`
-  );
+  console.log('With token:', token.substring(0, 5) + '...');
   
-  return sendEmail(email, 'signup_confirmation', {
+  return await sendEmail(email, 'signup_confirmation', {
     name,
-    token,
-    subject: template.subject,
-    html: template.html
+    token
   });
 };
 
@@ -144,23 +122,13 @@ export const sendPasswordResetEmail = async (
   token: string
 ): Promise<boolean> => {
   console.log('Sending password reset email to:', email);
-  console.log('With token:', token);
-  const template = emailTemplates.passwordReset(
-    name, 
-    `${window.location.origin}/reset-password?token=${token}`
-  );
+  console.log('With token:', token.substring(0, 5) + '...');
   
-  return sendEmail(email, 'password_reset', {
+  return await sendEmail(email, 'password_reset', {
     name,
-    token,
-    subject: template.subject,
-    html: template.html
+    token
   });
 };
-
-// Import supabase client
-import { supabase } from '../lib/supabase';
-
 
 export default {
   sendSignupConfirmationEmail,
