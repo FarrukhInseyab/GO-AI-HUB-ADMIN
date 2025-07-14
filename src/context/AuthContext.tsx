@@ -282,95 +282,84 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const forgotPassword = async (email: string) => {
-    try {
-      setIsLoading(true);
-      console.log('Initiating password reset for:', email.trim().toLowerCase());
+  const forgotPassword = async (email: string): Promise<void> => {
+  try {
+    setIsLoading(true);
+    console.log('Initiating password reset for:', email.trim().toLowerCase());
 
-      // Get user data to include name in email
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('contact_name')
-        .eq('email', email.trim().toLowerCase())
-        .single();
-        
-      if (userError && !userError.message.includes('No rows found')) {
-        console.error('Error fetching user data:', userError);
-      }
-      
-      // Generate a reset token
-      const resetToken = btoa(email.trim().toLowerCase() + ':' + new Date().getTime());
-      
-      // Store token in localStorage with expiration (1 hour)
-      const tokenData = {
-        token: resetToken,
-        expires: new Date().getTime() + (60 * 60 * 1000) // 1 hour
-      };
-      localStorage.setItem('passwordResetToken:' + email.trim().toLowerCase(), JSON.stringify(tokenData));
-      
-      // Send password reset email using our Nodemailer service
-      try {
-        const emailSent = await emailService.sendPasswordResetEmail(
-          email.trim().toLowerCase(),
-          userData?.contact_name || email.trim().toLowerCase().split('@')[0],
-          resetToken
-        );
-        
-        console.log('Password reset email sent:', emailSent);
-        
-        if (!emailSent) {
-          throw new Error('Failed to send recovery email');
-        }
-        
-        return true;
-      } catch (emailError) {
-        console.error('Error sending password reset email:', emailError);
-        throw emailError;
-      }
-    } catch (error) {
-      console.error('Password reset error:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('contact_name')
+      .eq('email', email.trim().toLowerCase())
+      .single();
+
+    if (userError && !userError.message.includes('No rows found')) {
+      console.error('Error fetching user data:', userError);
     }
-  };
 
-  const resetPassword = async (password: string) => {
+    const resetToken = btoa(email.trim().toLowerCase() + ':' + new Date().getTime());
+
+    const tokenData = {
+      token: resetToken,
+      expires: new Date().getTime() + 60 * 60 * 1000, // 1 hour
+    };
+    localStorage.setItem(
+      'passwordResetToken:' + email.trim().toLowerCase(),
+      JSON.stringify(tokenData)
+    );
+
     try {
-      setIsLoading(true);
-      console.log('Attempting to update password');
-      
-      // In a real implementation, we would verify the token from the URL
-      // and then update the user's password in the database
-      
-      // For now, we'll simulate a successful password reset
-      console.log('Password would be updated to:', password);
-      
-      // Try to update the password through Supabase if the user is logged in
-      if (user) {
-        const { error } = await supabase.auth.updateUser({
-          password: password
-        });
+      const emailSent = await emailService.sendPasswordResetEmail(
+        email.trim().toLowerCase(),
+        userData?.contact_name || email.trim().toLowerCase().split('@')[0],
+        resetToken
+      );
 
-        if (error) {
-          console.error('Password update error:', error);
-          // Continue with the simulation instead of throwing
-          console.log('Simulating password update instead');
-        } else {
-          console.log('Password updated successfully through Supabase');
-          return true;
-        }
+      console.log('Password reset email sent:', emailSent);
+
+      if (!emailSent) {
+        throw new Error('Failed to send recovery email');
       }
-      
-      // Simulate success
-      return true;
-    } catch (error) {
-      console.error('Password update error:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+
+      // 🔴 Removed `return true;`
+    } catch (emailError) {
+      console.error('Error sending password reset email:', emailError);
+      throw emailError;
     }
-  };
+  } catch (error) {
+    console.error('Password reset error:', error);
+    throw error;
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
+  const resetPassword = async (password: string): Promise<void> => {
+  try {
+    setIsLoading(true);
+    console.log('Attempting to update password');
+
+    if (user) {
+      const { error } = await supabase.auth.updateUser({ password });
+
+      if (error) {
+        console.error('Password update error:', error);
+        console.log('Simulating password update instead');
+      } else {
+        console.log('Password updated successfully through Supabase');
+      }
+    }
+
+    // No return here
+  } catch (error) {
+    console.error('Password update error:', error);
+    throw error;
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const signup = async (name: string, email: string, password: string, country: string = 'Saudi Arabia') => {
     try {
