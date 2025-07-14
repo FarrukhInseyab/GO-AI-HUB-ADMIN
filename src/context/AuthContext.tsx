@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
 import { supabase } from '../lib/supabase';
-import { sendSignupConfirmationEmail, sendPasswordResetEmail } from '../utils/emailService';
 
 type AuthContextType = {
   user: User | null;
@@ -267,19 +266,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Send confirmation email for new signups
       if (data.user && !data.session) {
-        try {
-          const userName = name.trim();
-          // Generate a confirmation token (in a real app, this would be stored in the database)
-          const confirmationToken = btoa(`${data.user.id}:${Date.now()}`);
-          
-          await sendSignupConfirmationEmail(
-            data.user.email,
-            userName,
-            confirmationToken
-          );
-        } catch (emailError) {
-          console.error('Failed to send confirmation email:', emailError);
-        }
+        // TODO: Implement server-side email sending
+        console.log('Confirmation email would be sent to:', data.user.email);
       }
     } catch (error) {
       throw error;
@@ -296,22 +284,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error(error.message);
       }
 
-      // Get user profile to send personalized email
-      const { data: userData } = await supabase
-        .from('users')
-        .select('contact_name')
-        .eq('email', email)
-        .single();
-
-      // Generate a reset token (in a real app, this would be stored in the database)
-      const resetToken = btoa(`${email}:${Date.now()}`);
-      
-      // Send password reset email
-      await sendPasswordResetEmail(
-        email,
-        userData?.contact_name || email.split('@')[0],
-        resetToken
-      );
+      // TODO: Implement server-side email sending
+      console.log('Password reset email would be sent to:', email);
 
     } catch (error) {
       console.error('Password reset error:', error);
@@ -364,6 +338,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.user && data.session) {
         await fetchUserProfile(data.user.id, data.user.email);
       } else if (data.user && !data.session) {
+        // TODO: Implement server-side email sending
+        console.log('Signup confirmation email would be sent to:', data.user.email);
         throw new Error('Please check your email to confirm your account');
       }
     } catch (error) {

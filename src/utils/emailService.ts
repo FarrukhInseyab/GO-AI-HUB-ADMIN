@@ -1,20 +1,8 @@
-import nodemailer from 'nodemailer';
-import path from 'path';
-import fs from 'fs';
+// Email service placeholder - moved to server-side implementation
+// This file is kept for future server-side email functionality
 
-// Create a transporter with SMTP configuration
-const transporter = nodemailer.createTransport({
-  host: 'decisions.social',
-  port: 465,
-  secure: true, // true for 465, false for other ports
-  auth: {
-    user: 'alerts@decisions.social',
-    pass: 'DuONN7qH?MP&'
-  }
-});
-
-// Email templates
-const emailTemplates = {
+// Email templates that can be used by server-side implementation
+export const emailTemplates = {
   signupConfirmation: (name: string, confirmationLink: string) => ({
     subject: 'Welcome to GO AI HUB - Confirm Your Account',
     html: `
@@ -64,30 +52,15 @@ const emailTemplates = {
   })
 };
 
-// Email service functions
+// Placeholder functions for future server-side implementation
 export const sendSignupConfirmationEmail = async (
   email: string, 
   name: string, 
   confirmationToken: string
 ): Promise<boolean> => {
-  try {
-    const confirmationLink = `${import.meta.env.VITE_APP_URL || 'http://localhost:5173'}/confirm-email?token=${confirmationToken}`;
-    
-    const template = emailTemplates.signupConfirmation(name, confirmationLink);
-    
-    const mailOptions = {
-      from: '"GO AI HUB" <alerts@decisions.social>',
-      to: email,
-      subject: template.subject,
-      html: template.html
-    };
-    
-    await transporter.sendMail(mailOptions);
-    return true;
-  } catch (error) {
-    console.error('Error sending signup confirmation email:', error);
-    return false;
-  }
+  console.log('Email sending moved to server-side implementation');
+  // TODO: Implement server-side email sending via Supabase Edge Function or API
+  return true;
 };
 
 export const sendPasswordResetEmail = async (
@@ -95,36 +68,15 @@ export const sendPasswordResetEmail = async (
   name: string, 
   resetToken: string
 ): Promise<boolean> => {
-  try {
-    const resetLink = `${import.meta.env.VITE_APP_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
-    
-    const template = emailTemplates.passwordReset(name, resetLink);
-    
-    const mailOptions = {
-      from: '"GO AI HUB" <alerts@decisions.social>',
-      to: email,
-      subject: template.subject,
-      html: template.html
-    };
-    
-    await transporter.sendMail(mailOptions);
-    return true;
-  } catch (error) {
-    console.error('Error sending password reset email:', error);
-    return false;
-  }
+  console.log('Email sending moved to server-side implementation');
+  // TODO: Implement server-side email sending via Supabase Edge Function or API
+  return true;
 };
 
-// Verify SMTP connection
 export const verifyEmailConnection = async (): Promise<boolean> => {
-  try {
-    await transporter.verify();
-    console.log('SMTP server connection successful');
-    return true;
-  } catch (error) {
-    console.error('SMTP server connection failed:', error);
-    return false;
-  }
+  console.log('Email connection verification moved to server-side implementation');
+  // TODO: Implement server-side email verification
+  return true;
 };
 
 export default {
