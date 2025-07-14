@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
+import { SMTPClient } from "https://deno.land/x/smtp@v0.7.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -55,15 +55,11 @@ serve(async (req) => {
 
     // Configure SMTP client
     const client = new SMTPClient({
-      connection: {
-        hostname: "decisions.social",
-        port: 465,
-        tls: true,
-        auth: {
-          username: "alerts@decisions.social",
-          password: "DuONN7qH?MP&",
-        },
-      },
+      hostname: "decisions.social",
+      port: 465,
+      username: "alerts@decisions.social",
+      password: "DuONN7qH?MP&",
+      tls: true,
     });
 
     // Generate email content based on type
@@ -121,14 +117,15 @@ serve(async (req) => {
     }
 
     // Send email
-    await client.send({
+    const sendResult = await client.send({
       from: "GO AI HUB <alerts@decisions.social>",
       to: to,
       subject: emailSubject,
+      content: emailHtml,
       html: emailHtml,
     });
 
-    await client.close();
+    console.log("Email sent:", sendResult);
 
     // Log email sending for audit
     await supabaseClient

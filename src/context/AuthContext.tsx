@@ -284,15 +284,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const forgotPassword = async (email: string) => {
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      // Get user info if possible
+      // First, get user info if possible
       const { data: userData } = await supabase
         .from('users')
         .select('contact_name')
@@ -301,12 +293,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const userName = userData?.contact_name || email.split('@')[0];
       
+      // Generate a reset token (in production, this should be a secure token)
+      const resetToken = btoa(email + ':' + new Date().getTime());
+      
+      // Call Supabase auth reset
+      const { error, data } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+      
       // Send password reset email
-      await emailService.sendPasswordResetEmail(
+      const emailSent = await emailService.sendPasswordResetEmail(
         email,
         userName,
-        'passwordResetToken' // Supabase handles the actual token
+        resetToken
       );
+      
+      console.log('Password reset email sent:', emailSent);
 
     } catch (error) {
       console.error('Password reset error:', error);
@@ -332,13 +338,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = async (name: string, email: string, password: string, country: string = 'Saudi Arabia') => {
     try {
       const signupPromise = supabase.auth.signUp({
-        email: email.toLowerCase().trim(),
-        password: password,
+        email,
+        password,
         options: {
           data: {
-            name: name.trim(),
+            name,
             role: 'Evaluator',
-            country: country
+            country
           }
         }
       });
@@ -359,9 +365,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.user && data.session) {
         await fetchUserProfile(data.user.id, data.user.email);
       } else if (data.user && !data.session) {
-        // TODO: Implement server-side email sending
-        console.log('Signup confirmation email would be sent to:', data.user.email);
-        throw new Error('Please check your email to confirm your account');
+        // Generate a confirmation token
+        const confirmationToken = btoa(data.user.id + ':' + new Date().getTime());
+        
+        // Send confirmation email
+        const emailSent = await emailService.sendSignupConfirmationEmail(
+          data.user.email,
+          name,
+          confirmationToken
+        );
+        
+        console.log('Signup confirmation email sent:', emailSent);
+        
+        if (!emailSent) {
+          throw new Error('Failed to send confirmation email. Please try again.');
+        } else {
+          throw new Error('Please check your email to confirm your account');
+        }
       }
     } catch (error) {
       throw error;

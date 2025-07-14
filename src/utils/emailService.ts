@@ -1,5 +1,8 @@
 // Email service for frontend - calls Supabase Edge Function
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
 // Email templates
 export const emailTemplates = {
   signupConfirmation: (name: string, confirmationLink: string) => ({
@@ -63,32 +66,22 @@ export const sendEmail = async (
   }
 ): Promise<boolean> => {
   try {
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       console.error('Missing Supabase configuration');
       return false;
     }
     
-    // Get auth token from localStorage
-    const supabaseAuth = localStorage.getItem('supabase.auth.token');
-    let authToken = '';
+    // Get current session token
+    const { data } = await supabase.auth.getSession();
+    const accessToken = data.session?.access_token || SUPABASE_ANON_KEY;
     
-    if (supabaseAuth) {
-      try {
-        const parsedAuth = JSON.parse(supabaseAuth);
-        authToken = parsedAuth.access_token || '';
-      } catch (e) {
-        console.error('Error parsing auth token:', e);
-      }
-    }
+    console.log('Calling edge function with token:', accessToken ? 'Token exists' : 'No token');
     
-    const response = await fetch(`${supabaseUrl}/functions/v1/send-email`, {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken || supabaseAnonKey}`
+        'Authorization': `Bearer ${accessToken}`
       },
       body: JSON.stringify({
         to,
@@ -99,10 +92,12 @@ export const sendEmail = async (
     
     if (!response.ok) {
       const errorData = await response.json();
+      console.error('Email service error:', errorData);
       throw new Error(errorData.error || 'Failed to send email');
     }
     
     const result = await response.json();
+    console.log('Email service response:', result);
     return result.success;
   } catch (error) {
     console.error('Error sending email:', error);
@@ -114,16 +109,18 @@ export const sendEmail = async (
 export const sendSignupConfirmationEmail = async (
   email: string, 
   name: string, 
-  confirmationToken: string
+  token: string
 ): Promise<boolean> => {
+  console.log('Sending signup confirmation email to:', email);
+  
   const template = emailTemplates.signupConfirmation(
     name, 
-    `${window.location.origin}/confirm-email?token=${confirmationToken}`
+    `${window.location.origin}/confirm-email?token=${token}`
   );
   
   return sendEmail(email, 'signup_confirmation', {
     name,
-    token: confirmationToken,
+    token,
     subject: template.subject,
     html: template.html
   });
@@ -131,21 +128,26 @@ export const sendSignupConfirmationEmail = async (
 
 export const sendPasswordResetEmail = async (
   email: string, 
-  name: string, 
-  resetToken: string
+  name: string,
+  token: string
 ): Promise<boolean> => {
+  console.log('Sending password reset email to:', email);
+  
   const template = emailTemplates.passwordReset(
     name, 
-    `${window.location.origin}/reset-password?token=${resetToken}`
+    `${window.location.origin}/reset-password?token=${token}`
   );
   
   return sendEmail(email, 'password_reset', {
     name,
-    token: resetToken,
+    token,
     subject: template.subject,
     html: template.html
   });
 };
+
+// Import supabase client
+import { supabase } from '../lib/supabase';
 
 export default {
   sendSignupConfirmationEmail,
