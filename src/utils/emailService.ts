@@ -1,6 +1,7 @@
 // Email service for frontend - calls Supabase Edge Function
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Email templates
 export const emailTemplates = {
@@ -70,12 +71,18 @@ export const sendEmail = async (
       return false;
     }
     
-    // Get current session token
-    const { data } = await supabase.auth.getSession();
-    const accessToken = data.session?.access_token || SUPABASE_ANON_KEY;
+    // Get current session token or use anon key as fallback
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData.session?.access_token || SUPABASE_ANON_KEY;
     
-    console.log('Calling edge function with token:', accessToken ? 'Token exists' : 'No token');
+    if (!accessToken) {
+      console.error('No access token available for edge function call');
+      return false;
+    }
+    
+    console.log('Calling edge function with token type:', sessionData.session ? 'Session token' : 'Anon key');
     console.log('Sending email to:', to, 'with type:', type);
+    
     const response = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
       method: 'POST',
       headers: {
@@ -90,9 +97,15 @@ export const sendEmail = async (
     });
     
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Email service error:', response.status, errorData);
-      throw new Error(errorData.error || 'Failed to send email');
+      const errorText = await response.text();
+      let errorData;
+      try {
+        errorData = JSON.parse(errorText);
+      } catch (e) {
+        errorData = { error: errorText };
+      }
+      console.error('Email service error:', response.status, errorData, response.headers);
+      throw new Error(errorData.error || `Failed to send email: ${response.status}`);
     }
     
     const result = await response.json();
@@ -147,8 +160,6 @@ export const sendPasswordResetEmail = async (
 
 // Import supabase client
 import { supabase } from '../lib/supabase';
-// Get anon key from env
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 
 export default {

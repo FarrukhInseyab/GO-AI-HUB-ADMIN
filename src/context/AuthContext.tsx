@@ -285,6 +285,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const forgotPassword = async (email: string) => {
     try {
       console.log('Initiating password reset for:', email);
+
+      // First try Supabase's built-in password reset
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`
+        });
+        
+        if (error) {
+          console.log('Supabase password reset error:', error);
+          // If Supabase's built-in reset fails, we'll fall back to our custom solution
+        } else {
+          console.log('Supabase password reset email sent successfully');
+          return true;
+        }
+      } catch (supabaseError) {
+        console.log('Error with Supabase password reset:', supabaseError);
+        // Continue with custom implementation
+      }
       
       // Get user data to include name in email
       const { data: userData, error: userError } = await supabase
@@ -300,24 +318,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Generate a reset token
       const resetToken = btoa(email + ':' + new Date().getTime());
       
-      // Store token in localStorage for verification later
-      // In a production app, this should be stored in a database
-      localStorage.setItem('passwordResetToken:' + email, resetToken);
+      // Store token in localStorage with expiration (1 hour)
+      const tokenData = {
+        token: resetToken,
+        expires: new Date().getTime() + (60 * 60 * 1000) // 1 hour
+      };
+      localStorage.setItem('passwordResetToken:' + email, JSON.stringify(tokenData));
       
       // Send password reset email using our edge function
-      const emailSent = await emailService.sendPasswordResetEmail(
-        email,
-        userData?.contact_name || email.split('@')[0],
-        resetToken
-      );
-      
-      console.log('Password reset email sent:', emailSent);
-      
-      if (!emailSent) {
-        throw new Error('Failed to send recovery email');
+      try {
+        const emailSent = await emailService.sendPasswordResetEmail(
+          email,
+          userData?.contact_name || email.split('@')[0],
+          resetToken
+        );
+        
+        console.log('Password reset email sent:', emailSent);
+        
+        if (!emailSent) {
+          throw new Error('Failed to send recovery email');
+        }
+        
+        return true;
+      } catch (emailError) {
+        console.error('Error sending password reset email:', emailError);
+        throw emailError;
       }
-      
-      return true;
     } catch (error) {
       console.error('Password reset error:', error);
       throw error;
