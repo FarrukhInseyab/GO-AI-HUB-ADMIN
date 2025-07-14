@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
 import { supabase } from '../lib/supabase';
+import { sendSignupConfirmationEmail, sendPasswordResetEmail } from '../utils/emailService';
 
 type AuthContextType = {
   user: User | null;
@@ -9,6 +10,8 @@ type AuthContextType = {
   signup: (name: string, email: string, password: string, country?: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
+  resetPassword: (password: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,6 +27,7 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [resetPasswordToken, setResetPasswordToken] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -260,7 +264,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (data.user) {
         await fetchUserProfile(data.user.id, data.user.email);
       }
+      
+      // Send confirmation email for new signups
+      if (data.user && !data.session) {
+        try {
+          const userName = name.trim();
+          // Generate a confirmation token (in a real app, this would be stored in the database)
+          const confirmationToken = btoa(`${data.user.id}:${Date.now()}`);
+          
+          await sendSignupConfirmationEmail(
+            data.user.email,
+            userName,
+            confirmationToken
+          );
+        } catch (emailError) {
+          console.error('Failed to send confirmation email:', emailError);
+        }
+      }
     } catch (error) {
+      throw error;
+    }
+  };
+
+  const forgotPassword = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      // Get user profile to send personalized email
+      const { data: userData } = await supabase
+        .from('users')
+        .select('contact_name')
+        .eq('email', email)
+        .single();
+
+      // Generate a reset token (in a real app, this would be stored in the database)
+      const resetToken = btoa(`${email}:${Date.now()}`);
+      
+      // Send password reset email
+      await sendPasswordResetEmail(
+        email,
+        userData?.contact_name || email.split('@')[0],
+        resetToken
+      );
+
+    } catch (error) {
+      console.error('Password reset error:', error);
+      throw error;
+    }
+  };
+
+  const resetPassword = async (password: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: password
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+    } catch (error) {
+      console.error('Password update error:', error);
       throw error;
     }
   };
@@ -318,7 +387,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, refreshSession }}>
+    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, refreshSession, forgotPassword, resetPassword }}>
       {children}
     </AuthContext.Provider>
   );

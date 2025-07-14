@@ -101,15 +101,23 @@ const LoginForm: React.FC = () => {
       </CardContent>
       
       <CardFooter className="flex justify-center bg-gray-50 p-4 sm:p-6">
-        <p className="text-sm text-gray-600">
-          {t('auth.dontHaveAccount')}{' '}
+        <div className="flex flex-col items-center space-y-2">
+          <p className="text-sm text-gray-600">
+            {t('auth.dontHaveAccount')}{' '}
+            <Link 
+              to="/signup" 
+              className="text-primary-600 hover:text-primary-800 font-medium transition-colors duration-200"
+            >
+              {t('navigation.signup')}
+            </Link>
+          </p>
           <Link 
-            to="/signup" 
-            className="text-primary-600 hover:text-primary-800 font-medium transition-colors duration-200"
+            to="/forgot-password" 
+            className="text-sm text-primary-600 hover:text-primary-800 font-medium transition-colors duration-200"
           >
-            {t('navigation.signup')}
+            Forgot your password?
           </Link>
-        </p>
+        </div>
       </CardFooter>
     </Card>
   );
