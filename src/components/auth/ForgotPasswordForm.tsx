@@ -30,6 +30,7 @@ const ForgotPasswordForm: React.FC = () => {
       console.log('Submitting forgot password form for:', email);
       await forgotPassword(email);
       setSuccess(true);
+      console.log('Password reset email sent successfully');
     } catch (err: any) {
       console.error('Forgot password form error:', err);
       setError(err.message || 'Failed to send password reset email. Please try again later.');

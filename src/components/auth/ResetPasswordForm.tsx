@@ -22,15 +22,12 @@ const ResetPasswordForm: React.FC = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
 
-  // Check for Supabase hash parameters
-  const hash = window.location.hash;
-  
   useEffect(() => {
-    // Check if we have either a token query param or a Supabase hash
-    if (!token && !hash.includes('type=recovery')) {
+    // Check if we have a token query param
+    if (!token) {
       setError('Invalid or missing reset token');
     }
-  }, [token, hash]);
+  }, [token]);
 
   const validatePassword = (password: string) => {
     const errors: string[] = [];
@@ -85,7 +82,7 @@ const ResetPasswordForm: React.FC = () => {
     
     try {
       await resetPassword(password);
-      console.log('Password reset successful');
+      console.log('Password reset successful with token:', token);
       setSuccess(true);
       
       // Redirect to login after 3 seconds

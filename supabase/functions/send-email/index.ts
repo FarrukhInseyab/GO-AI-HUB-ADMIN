@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { SMTPClient } from "https://deno.land/x/smtp@v0.7.0/mod.ts";
+import { SmtpClient } from "https://deno.land/x/smtp@v0.7.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -54,13 +54,19 @@ serve(async (req) => {
     }
 
     // Configure SMTP client
-    const client = new SMTPClient({
-      hostname: "decisions.social",
-      port: 465,
-      username: "alerts@decisions.social",
-      password: "DuONN7qH?MP&",
-      tls: true,
-    });
+    const client = new SmtpClient();
+    
+    try {
+      await client.connectTLS({
+        hostname: "decisions.social",
+        port: 465,
+        username: "alerts@decisions.social",
+        password: "DuONN7qH?MP&",
+      });
+    } catch (smtpError) {
+      console.error("SMTP connection error:", smtpError);
+      throw new Error(`SMTP connection failed: ${smtpError.message}`);
+    }
 
     // Generate email content based on type
     let emailSubject = subject;
@@ -117,25 +123,38 @@ serve(async (req) => {
     }
 
     // Send email
-    const sendResult = await client.send({
-      from: "GO AI HUB <alerts@decisions.social>",
-      to: to,
-      subject: emailSubject,
-      content: emailHtml,
-      html: emailHtml,
-    });
-
-    console.log("Email sent:", sendResult);
+    try {
+      await client.send({
+        from: "GO AI HUB <alerts@decisions.social>",
+        to: to,
+        subject: emailSubject,
+        content: "text/html",
+        html: emailHtml,
+      });
+      
+      console.log("Email sent successfully to:", to);
+      
+      // Close the connection
+      await client.close();
+    } catch (sendError) {
+      console.error("Email sending error:", sendError);
+      throw new Error(`Failed to send email: ${sendError.message}`);
+    }
 
     // Log email sending for audit
-    await supabaseClient
-      .from('email_logs')
-      .insert({
-        user_id: user.id,
-        email_type: type,
-        recipient: to,
-        sent_at: new Date().toISOString()
-      });
+    try {
+      await supabaseClient
+        .from('email_logs')
+        .insert({
+          user_id: user.id,
+          email_type: type,
+          recipient: to,
+          sent_at: new Date().toISOString()
+        });
+    } catch (logError) {
+      console.error("Failed to log email:", logError);
+      // Don't throw here, we still want to return success if the email was sent
+    }
 
     return new Response(
       JSON.stringify({ success: true, message: 'Email sent successfully' }),

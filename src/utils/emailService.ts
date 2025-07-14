@@ -1,7 +1,6 @@
 // Email service for frontend - calls Supabase Edge Function
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Email templates
 export const emailTemplates = {
@@ -57,7 +56,7 @@ export const emailTemplates = {
 // Function to call the Supabase Edge Function for sending emails
 export const sendEmail = async (
   to: string,
-  type: 'signup_confirmation' | 'password_reset',
+  type: string,
   data: {
     name?: string;
     token?: string;
@@ -66,8 +65,8 @@ export const sendEmail = async (
   }
 ): Promise<boolean> => {
   try {
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-      console.error('Missing Supabase configuration');
+    if (!SUPABASE_URL) {
+      console.error('Missing Supabase URL configuration');
       return false;
     }
     
@@ -76,7 +75,7 @@ export const sendEmail = async (
     const accessToken = data.session?.access_token || SUPABASE_ANON_KEY;
     
     console.log('Calling edge function with token:', accessToken ? 'Token exists' : 'No token');
-    
+    console.log('Sending email to:', to, 'with type:', type);
     const response = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
       method: 'POST',
       headers: {
@@ -92,7 +91,7 @@ export const sendEmail = async (
     
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Email service error:', errorData);
+      console.error('Email service error:', response.status, errorData);
       throw new Error(errorData.error || 'Failed to send email');
     }
     
@@ -100,7 +99,7 @@ export const sendEmail = async (
     console.log('Email service response:', result);
     return result.success;
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Error sending email through edge function:', error);
     return false;
   }
 };
@@ -112,7 +111,7 @@ export const sendSignupConfirmationEmail = async (
   token: string
 ): Promise<boolean> => {
   console.log('Sending signup confirmation email to:', email);
-  
+  console.log('With token:', token);
   const template = emailTemplates.signupConfirmation(
     name, 
     `${window.location.origin}/confirm-email?token=${token}`
@@ -132,7 +131,7 @@ export const sendPasswordResetEmail = async (
   token: string
 ): Promise<boolean> => {
   console.log('Sending password reset email to:', email);
-  
+  console.log('With token:', token);
   const template = emailTemplates.passwordReset(
     name, 
     `${window.location.origin}/reset-password?token=${token}`
@@ -148,6 +147,9 @@ export const sendPasswordResetEmail = async (
 
 // Import supabase client
 import { supabase } from '../lib/supabase';
+// Get anon key from env
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
 
 export default {
   sendSignupConfirmationEmail,
