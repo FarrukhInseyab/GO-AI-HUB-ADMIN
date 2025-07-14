@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
   secure: true,
   auth: {
     user: "alerts@decisions.social",
-    pass: "DuONN7qH?MP&"
+    pass: "3?%-.v7pwsaz"
   }
 });
 
