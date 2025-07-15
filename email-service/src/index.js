@@ -88,16 +88,16 @@ const emailTemplates = {
 // API endpoints
 app.post('/api/send-email', async (req, res) => {
   try {
-    const { to, type, name, token, appUrl } = req.body;
+    const { to, type, name, token, appUrl, subject, html } = req.body;
     
-    if (!to || !type) {
+    if (!to) {
       return res.status(400).json({ 
         success: false, 
-        error: 'Missing required fields: to and type are required' 
+        error: 'Missing required field: to is required' 
       });
     }
     
-    console.log(`Sending ${type} email to: ${to}`);
+    console.log(`Sending ${type || 'custom'} email to: ${to}`);
     
     let emailContent;
     
@@ -107,10 +107,19 @@ app.post('/api/send-email', async (req, res) => {
     } else if (type === 'password_reset') {
       const resetLink = `${appUrl || process.env.APP_URL}/reset-password?token=${token}`;
       emailContent = emailTemplates.passwordReset(name || to.split('@')[0], resetLink);
+    } else if (type === 'custom') {
+      // For custom emails, use the provided subject and html
+      if (!subject || !html) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'For custom emails, subject and html are required' 
+        });
+      }
+      emailContent = { subject, html };
     } else {
       return res.status(400).json({ 
         success: false, 
-        error: 'Invalid email type. Supported types: signup_confirmation, password_reset' 
+        error: 'Invalid email type. Supported types: signup_confirmation, password_reset, custom' 
       });
     }
     

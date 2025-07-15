@@ -28,6 +28,151 @@ export const emailTemplates = {
       </div>
     `
   }),
+
+  solutionRegistration: (name: string, solutionName: string, solutionLink: string) => ({
+    subject: 'GO AI HUB - Solution Registration Confirmation',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h1 style="color: #00afaf;">Solution Registration Confirmation</h1>
+        </div>
+        <p>Hello ${name},</p>
+        <p>Thank you for registering your solution <strong>${solutionName}</strong> with GO AI HUB.</p>
+        <p>Your solution has been successfully submitted and is now pending review by our evaluation team.</p>
+        <p>You can view your solution status by clicking the button below:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${solutionLink}" style="background-color: #00afaf; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">View Solution</a>
+        </div>
+        <p>If the button doesn't work, you can also copy and paste the following link into your browser:</p>
+        <p style="word-break: break-all; color: #666;">${solutionLink}</p>
+        <p>Our team will review your solution and provide feedback as soon as possible.</p>
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} GO AI HUB. All rights reserved.</p>
+        </div>
+      </div>
+    `
+  }),
+
+  technicalApproval: (name: string, solutionName: string, solutionLink: string, feedback: string) => ({
+    subject: 'GO AI HUB - Technical Approval for Your Solution',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h1 style="color: #00afaf;">Technical Approval</h1>
+        </div>
+        <p>Hello ${name},</p>
+        <p>We're pleased to inform you that your solution <strong>${solutionName}</strong> has received technical approval from our evaluation team.</p>
+        <p>Technical Feedback:</p>
+        <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #00afaf; margin: 20px 0;">
+          <p style="margin: 0;">${feedback || 'Your solution meets our technical requirements.'}</p>
+        </div>
+        <p>You can view your solution status by clicking the button below:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${solutionLink}" style="background-color: #00afaf; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">View Solution</a>
+        </div>
+        <p>If the button doesn't work, you can also copy and paste the following link into your browser:</p>
+        <p style="word-break: break-all; color: #666;">${solutionLink}</p>
+        <p>Your solution is now pending business approval. We'll notify you once the business review is complete.</p>
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} GO AI HUB. All rights reserved.</p>
+        </div>
+      </div>
+    `
+  }),
+
+  businessApproval: (name: string, solutionName: string, solutionLink: string, feedback: string) => ({
+    subject: 'GO AI HUB - Business Approval for Your Solution',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h1 style="color: #00afaf;">Business Approval</h1>
+        </div>
+        <p>Hello ${name},</p>
+        <p>We're pleased to inform you that your solution <strong>${solutionName}</strong> has received business approval from our evaluation team.</p>
+        <p>Business Feedback:</p>
+        <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #00afaf; margin: 20px 0;">
+          <p style="margin: 0;">${feedback || 'Your solution meets our business requirements.'}</p>
+        </div>
+        <p>You can view your solution status by clicking the button below:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${solutionLink}" style="background-color: #00afaf; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">View Solution</a>
+        </div>
+        <p>If the button doesn't work, you can also copy and paste the following link into your browser:</p>
+        <p style="word-break: break-all; color: #666;">${solutionLink}</p>
+        <p>Congratulations! Your solution is now fully approved and will be visible in the GO AI HUB marketplace.</p>
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} GO AI HUB. All rights reserved.</p>
+        </div>
+      </div>
+    `
+  }),
+
+  solutionCancellation: (name: string, solutionName: string, reason: string) => ({
+    subject: 'GO AI HUB - Solution Cancellation Notice',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h1 style="color: #00afaf;">Solution Cancellation Notice</h1>
+        </div>
+        <p>Hello ${name},</p>
+        <p>We regret to inform you that your solution <strong>${solutionName}</strong> has been cancelled by an administrator.</p>
+        <p>Reason for cancellation:</p>
+        <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #ff6b6b; margin: 20px 0;">
+          <p style="margin: 0;">${reason || 'The solution does not meet our current requirements.'}</p>
+        </div>
+        <p>If you believe this was done in error or would like to discuss this further, please contact our support team.</p>
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} GO AI HUB. All rights reserved.</p>
+        </div>
+      </div>
+    `
+  }),
+
+  interestSubmission: (name: string, solutionName: string, companyName: string, message: string) => ({
+    subject: 'GO AI HUB - New Interest in Your Solution',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h1 style="color: #00afaf;">New Interest in Your Solution</h1>
+        </div>
+        <p>Hello ${name},</p>
+        <p>We're excited to inform you that <strong>${companyName}</strong> has expressed interest in your solution <strong>${solutionName}</strong>.</p>
+        <p>Their message:</p>
+        <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #00afaf; margin: 20px 0;">
+          <p style="margin: 0; font-style: italic;">"${message}"</p>
+        </div>
+        <p>Our team will review this interest and may contact you for further information.</p>
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} GO AI HUB. All rights reserved.</p>
+        </div>
+      </div>
+    `
+  }),
+
+  contactAssignment: (name: string, solutionName: string, contactName: string, contactEmail: string, comments: string) => ({
+    subject: 'GO AI HUB - Contact Person Assigned to Your Interest',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h1 style="color: #00afaf;">Contact Person Assigned</h1>
+        </div>
+        <p>Hello ${name},</p>
+        <p>We're pleased to inform you that a contact person has been assigned to your interest in <strong>${solutionName}</strong>.</p>
+        <div style="background-color: #f9f9f9; padding: 15px; border: 1px solid #e0e0e0; border-radius: 5px; margin: 20px 0;">
+          <p style="margin: 0 0 10px 0;"><strong>Contact Person:</strong> ${contactName}</p>
+          <p style="margin: 0 0 10px 0;"><strong>Email:</strong> <a href="mailto:${contactEmail}" style="color: #00afaf;">${contactEmail}</a></p>
+        </div>
+        <p>Additional comments:</p>
+        <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #00afaf; margin: 20px 0;">
+          <p style="margin: 0;">${comments || 'Your contact person will reach out to you shortly to discuss your interest in more detail.'}</p>
+        </div>
+        <p>If you have any questions, feel free to reply directly to this email or contact your assigned person.</p>
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
+          <p>© ${new Date().getFullYear()} GO AI HUB. All rights reserved.</p>
+        </div>
+      </div>
+    `
+  })
   
   passwordReset: (name: string, resetLink: string) => ({
     subject: 'GO AI HUB - Password Reset Request',
@@ -61,23 +206,33 @@ export const sendEmail = async (
   data: {
     name?: string;
     token?: string;
+    subject?: string;
+    html?: string;
   }
 ): Promise<boolean> => {
   try {
     console.log('Sending email to:', to, 'with type:', type, 'via Nodemailer service');
+    
+    const payload: any = {
+      to,
+      type,
+      name: data.name,
+      token: data.token,
+      appUrl: APP_URL
+    };
+    
+    // Add subject and html for custom emails
+    if (type === 'custom' && data.subject && data.html) {
+      payload.subject = data.subject;
+      payload.html = data.html;
+    }
     
     const response = await fetch(`${EMAIL_SERVICE_URL}/api/send-email`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        to,
-        type,
-        name: data.name,
-        token: data.token,
-        appUrl: APP_URL
-      })
+      body: JSON.stringify(payload)
     });
     
     if (!response.ok) {
@@ -130,7 +285,126 @@ export const sendPasswordResetEmail = async (
   });
 };
 
+export const sendSolutionRegistrationEmail = async (
+  email: string,
+  name: string,
+  solutionName: string,
+  solutionId: string
+): Promise<boolean> => {
+  console.log('Sending solution registration email to:', email);
+  
+  const solutionLink = `${window.location.origin}/solutions/${solutionId}`;
+  
+  const emailContent = emailTemplates.solutionRegistration(name, solutionName, solutionLink);
+  
+  return await sendEmail(email, 'custom', {
+    name,
+    subject: emailContent.subject,
+    html: emailContent.html
+  });
+};
+
+export const sendTechnicalApprovalEmail = async (
+  email: string,
+  name: string,
+  solutionName: string,
+  solutionId: string,
+  feedback: string
+): Promise<boolean> => {
+  console.log('Sending technical approval email to:', email);
+  
+  const solutionLink = `${window.location.origin}/solutions/${solutionId}`;
+  
+  const emailContent = emailTemplates.technicalApproval(name, solutionName, solutionLink, feedback);
+  
+  return await sendEmail(email, 'custom', {
+    name,
+    subject: emailContent.subject,
+    html: emailContent.html
+  });
+};
+
+export const sendBusinessApprovalEmail = async (
+  email: string,
+  name: string,
+  solutionName: string,
+  solutionId: string,
+  feedback: string
+): Promise<boolean> => {
+  console.log('Sending business approval email to:', email);
+  
+  const solutionLink = `${window.location.origin}/solutions/${solutionId}`;
+  
+  const emailContent = emailTemplates.businessApproval(name, solutionName, solutionLink, feedback);
+  
+  return await sendEmail(email, 'custom', {
+    name,
+    subject: emailContent.subject,
+    html: emailContent.html
+  });
+};
+
+export const sendSolutionCancellationEmail = async (
+  email: string,
+  name: string,
+  solutionName: string,
+  reason: string
+): Promise<boolean> => {
+  console.log('Sending solution cancellation email to:', email);
+  
+  const emailContent = emailTemplates.solutionCancellation(name, solutionName, reason);
+  
+  return await sendEmail(email, 'custom', {
+    name,
+    subject: emailContent.subject,
+    html: emailContent.html
+  });
+};
+
+export const sendInterestSubmissionEmail = async (
+  email: string,
+  name: string,
+  solutionName: string,
+  companyName: string,
+  message: string
+): Promise<boolean> => {
+  console.log('Sending interest submission email to:', email);
+  
+  const emailContent = emailTemplates.interestSubmission(name, solutionName, companyName, message);
+  
+  return await sendEmail(email, 'custom', {
+    name,
+    subject: emailContent.subject,
+    html: emailContent.html
+  });
+};
+
+export const sendContactAssignmentEmail = async (
+  email: string,
+  name: string,
+  solutionName: string,
+  contactName: string,
+  contactEmail: string,
+  comments: string
+): Promise<boolean> => {
+  console.log('Sending contact assignment email to:', email);
+  
+  const emailContent = emailTemplates.contactAssignment(name, solutionName, contactName, contactEmail, comments);
+  
+  return await sendEmail(email, 'custom', {
+    name,
+    subject: emailContent.subject,
+    html: emailContent.html
+  });
+};
+
 export default {
   sendSignupConfirmationEmail,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  sendSolutionRegistrationEmail,
+  sendTechnicalApprovalEmail,
+  sendBusinessApprovalEmail,
+  sendSolutionCancellationEmail,
+  sendInterestSubmissionEmail,
+  sendContactAssignmentEmail
 };

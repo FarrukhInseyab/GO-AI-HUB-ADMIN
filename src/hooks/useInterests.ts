@@ -2,6 +2,7 @@
 import { useState, useCallback } from 'react';
 import { useSupabase } from './useSupabase';
 import { supabase } from '../lib/supabase';
+import emailService from '../utils/emailService';
 
 export const useInterests = () => {
   const [interests, setInterests] = useState<any[]>([]);
@@ -69,12 +70,62 @@ export const useInterests = () => {
       updates.initiated_at = new Date().toISOString();
     }
 
-    return executeQuery(
+    const result = await executeQuery(
       () => supabase
         .from('interests')
         .update(updates)
         .eq('id', interestId)
     );
+    
+    // If the update was successful and this is a lead initiation, send an email
+    if (result.data && status === 'Lead Initiated') {
+      try {
+        // Get the full interest data with solution and evaluator info
+        const { data: interestData } = await supabase
+          .from('interests')
+          .select(`
+            *,
+            solutions (
+              solution_name,
+              contact_email,
+              contact_name
+            ),
+            users:Evaluator_id (
+              contact_name,
+              email
+            )
+          `)
+          .eq('id', interestId)
+          .single();
+          
+        if (interestData && interestData.solutions?.contact_email) {
+          // Send email to solution owner
+          await emailService.sendInterestSubmissionEmail(
+            interestData.solutions.contact_email,
+            interestData.solutions.contact_name,
+            interestData.solutions.solution_name,
+            interestData.company_name,
+            interestData.message
+          );
+        }
+        
+        // If there's a contact email and an evaluator, send contact assignment email
+        if (interestData && interestData.contact_email && interestData.users) {
+          await emailService.sendContactAssignmentEmail(
+            interestData.contact_email,
+            interestData.contact_name,
+            interestData.solutions?.solution_name || 'Solution',
+            interestData.users.contact_name,
+            interestData.users.email,
+            comments || 'Your interest has been received and a contact person has been assigned to assist you.'
+          );
+        }
+      } catch (error) {
+        console.error('Error sending interest notification emails:', error);
+      }
+    }
+    
+    return result;
   }, [executeQuery]);
 
   return {

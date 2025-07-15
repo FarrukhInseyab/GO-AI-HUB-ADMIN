@@ -13,6 +13,7 @@ import OpenAIDialog from '../components/ai/OpenAIDialog';
 import TextArea from '../components/ui/TextArea';
 import { getSolutionStatus } from '../utils/helpers';
 import Breadcrumb from '../components/ui/Breadcrumb';
+import emailService from '../utils/emailService';
 
 const SubmissionDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -150,6 +151,27 @@ const SubmissionDetailPage: React.FC = () => {
 
       if (error) throw error;
 
+      // Send email notification based on the type and status
+      if (solution.contact_email) {
+        if (type === 'technical' && status === 'approved') {
+          await emailService.sendTechnicalApprovalEmail(
+            solution.contact_email,
+            solution.contact_name,
+            solution.solution_name,
+            solution.id,
+            feedback || ''
+          );
+        } else if (type === 'business' && status === 'approved') {
+          await emailService.sendBusinessApprovalEmail(
+            solution.contact_email,
+            solution.contact_name,
+            solution.solution_name,
+            solution.id,
+            feedback || ''
+          );
+        }
+      }
+
       fetchData();
     } catch (error) {
       console.error('Error updating solution:', error);
@@ -177,6 +199,16 @@ const SubmissionDetailPage: React.FC = () => {
         .eq('id', solution.id);
 
       if (error) throw error;
+
+      // Send cancellation email
+      if (solution.contact_email) {
+        await emailService.sendSolutionCancellationEmail(
+          solution.contact_email,
+          solution.contact_name,
+          solution.solution_name,
+          'Solution has been reset for resubmission by an administrator.'
+        );
+      }
 
       fetchData();
     } catch (error) {
