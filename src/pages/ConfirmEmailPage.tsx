@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle, AlertCircle, ArrowLeft, Loader2 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext'; 
 import Button from '../components/ui/Button';
 import { Card, CardHeader, CardContent, CardFooter } from '../components/ui/Card';
 
@@ -35,9 +35,10 @@ const ConfirmEmailPage: React.FC = () => {
       try {
         await confirmEmail(cleanToken);
         setSuccess(true);
-        console.log('Email confirmed successfully, redirecting to dashboard');
-        // Redirect to dashboard immediately
-        navigate('/');
+        console.log('Email confirmed successfully, redirecting to dashboard immediately');
+        // Force redirect to dashboard
+        window.location.href = '/';
+        return;
       } catch (err: any) {
         console.error('Confirmation error:', err);
         setError(err.message || 'Failed to confirm email');
@@ -89,7 +90,7 @@ const ConfirmEmailPage: React.FC = () => {
                 <div className="mt-4 text-center">
                   <Button
                     variant="primary"
-                    onClick={() => navigate('/')}
+                    onClick={() => window.location.href = '/'}
                   >
                     Go to Dashboard Now
                   </Button>

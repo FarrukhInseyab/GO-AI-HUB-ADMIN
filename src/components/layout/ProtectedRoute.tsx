@@ -9,11 +9,20 @@ import { ROUTES } from '../../utils/constants';
 const ProtectedRoute: React.FC = () => {
   const { user, isLoading, isConfirmed } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   // For debugging
   console.log('ProtectedRoute - User:', user?.email);
   console.log('ProtectedRoute - isConfirmed:', isConfirmed);
   console.log('ProtectedRoute - User email_confirmed:', user?.email_confirmed);
+  
+  // If user is confirmed in database but not in state, force a refresh
+  useEffect(() => {
+    if (user && user.email_confirmed && !isConfirmed) {
+      console.log('User is confirmed in database but not in state, forcing refresh');
+      refreshSession();
+    }
+  }, [user, isConfirmed]);
 
   // If auth is still loading, show loading state
   if (isLoading) {
@@ -33,7 +42,7 @@ const ProtectedRoute: React.FC = () => {
   }
 
   // If email is not confirmed, show confirmation required message
-  if (user && !isConfirmed && !user.email_confirmed) {
+  if (user && !isConfirmed) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-900 via-primary-800 to-primary-700 flex justify-center items-center p-4">
         <div className="bg-white p-6 rounded-xl shadow-2xl max-w-md w-full animate-fade-in-up">

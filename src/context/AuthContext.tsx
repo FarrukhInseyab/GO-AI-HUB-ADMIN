@@ -562,13 +562,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Failed to confirm email. Please try again.');
       }
       
-      console.log('Email confirmation successful');
+      console.log('Email confirmation successful, setting isConfirmed to true');
       
       // Update confirmation status in the current session
       setIsConfirmed(true);
       
       // Force refresh the session to get updated user data
-      await refreshSession();
+      try {
+        await refreshSession();
+        console.log('Session refreshed successfully after confirmation');
+      } catch (refreshError) {
+        console.error('Error refreshing session after confirmation:', refreshError);
+        // Continue even if refresh fails, we've already set isConfirmed
+      }
       
       return;
     } catch (error) {
