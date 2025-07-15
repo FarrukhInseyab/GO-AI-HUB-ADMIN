@@ -321,7 +321,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Failed to send recovery email');
       }
 
-      // 🔴 Removed `return true;`
+      return; // Just return void as the function signature indicates
     } catch (emailError) {
       console.error('Error sending password reset email:', emailError);
       throw emailError;
@@ -340,6 +340,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     console.log('Attempting to update password');
 
+    // Get the token from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    
+    if (!token) {
+      throw new Error('Reset token is missing');
+    }
+    
+    // Parse the token to get the email
+    try {
+      const decodedToken = atob(token);
+      const [email] = decodedToken.split(':');
+      
+      if (!email) {
+        throw new Error('Invalid reset token format');
+      }
+      
+      // Verify token from localStorage
+      const storedTokenData = localStorage.getItem('passwordResetToken:' + email);
+      if (!storedTokenData) {
+        throw new Error('Reset token has expired or is invalid');
+      }
+      
+      const { token: storedToken, expires } = JSON.parse(storedTokenData);
+      
+      if (storedToken !== token) {
+        throw new Error('Invalid reset token');
+      }
+      
+      if (expires < new Date().getTime()) {
+        localStorage.removeItem('passwordResetToken:' + email);
+        throw new Error('Reset token has expired');
+      }
+      
+      // Reset password using Supabase Auth API
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/login'
+      });
+      
+      if (error) {
+        console.error('Password reset API error:', error);
+        throw error;
+      }
+      
+      // Clean up token
+      localStorage.removeItem('passwordResetToken:' + email);
+      
+      console.log('Password reset successful');
+      return;
+    } catch (tokenError) {
+      console.error('Token parsing error:', tokenError);
+      throw new Error('Invalid or expired reset token');
+    }
+    
     if (user) {
       const { error } = await supabase.auth.updateUser({ password });
 
@@ -350,8 +404,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('Password updated successfully through Supabase');
       }
     }
-
-    // No return here
+    else {
+      throw new Error('No active user session for password update');
+    }
   } catch (error) {
     console.error('Password update error:', error);
     throw error;
