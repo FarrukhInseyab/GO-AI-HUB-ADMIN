@@ -20,11 +20,11 @@ const LoginForm: React.FC = () => {
   const confirmed = searchParams.get('confirmed') === 'true';
 
   // Show success message if redirected from email confirmation
-  useState(() => {
+  useEffect(() => {
     if (confirmed) {
-      setSuccess('Your email has been confirmed successfully. You can now log in.');
+      setSuccess('Your email has been confirmed successfully! You can now log in.');
     }
-  });
+  }, [confirmed]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

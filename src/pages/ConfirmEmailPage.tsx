@@ -64,7 +64,7 @@ const ConfirmEmailPage: React.FC = () => {
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
         <Card className="w-full max-w-md mx-auto shadow-2xl border-0">
           <CardHeader className="bg-gradient-to-r from-primary-600 to-primary-500 text-white">
-            <h2 className="text-xl sm:text-2xl font-bold text-center text-white">
+            <h2 className="text-xl sm:text-2xl font-bold text-center text-white flex-1">
               Email Confirmation
             </h2>
           </CardHeader>
@@ -89,7 +89,15 @@ const ConfirmEmailPage: React.FC = () => {
                   <CheckCircle className="h-6 w-6 mr-2 text-green-500 flex-shrink-0" />
                   <h3 className="font-medium">Email Confirmed</h3>
                 </div>
-                <p className="text-sm">Your email has been successfully confirmed. You will be redirected to the login page shortly.</p>
+                <p className="text-sm">Your email has been successfully confirmed. You will be redirected to the login page in 5 seconds.</p>
+                <div className="mt-4 text-center">
+                  <Button
+                    variant="primary"
+                    onClick={() => navigate('/login?confirmed=true')}
+                  >
+                    Go to Login Now
+                  </Button>
+                </div>
               </div>
             ) : null}
           </CardContent>

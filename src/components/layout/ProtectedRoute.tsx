@@ -31,7 +31,7 @@ const ProtectedRoute: React.FC = () => {
   if (user && !isConfirmed) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-900 via-primary-800 to-primary-700 flex justify-center items-center p-4">
-        <div className="bg-white p-6 rounded-xl shadow-2xl max-w-md w-full">
+        <div className="bg-white p-6 rounded-xl shadow-2xl max-w-md w-full animate-fade-in-up">
           <div className="flex items-center justify-center mb-4">
             <div className="p-3 bg-amber-100 rounded-full">
               <AlertCircle className="h-8 w-8 text-amber-600" />
@@ -40,13 +40,29 @@ const ProtectedRoute: React.FC = () => {
           <h2 className="text-xl font-bold text-center mb-2">Email Confirmation Required</h2>
           <p className="text-gray-600 text-center mb-6">
             Please check your email and click the confirmation link to activate your account.
+            If you don't see the email, check your spam folder.
           </p>
-          <button
-            onClick={() => window.location.href = '/login'}
-            className="w-full py-2 px-4 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors"
-          >
-            Return to Login
-          </button>
+          <div className="space-y-3">
+            <button
+              onClick={() => window.location.href = '/login'}
+              className="w-full py-2 px-4 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors"
+            >
+              Return to Login
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  await logout();
+                  window.location.href = '/login';
+                } catch (error) {
+                  window.location.href = '/login';
+                }
+              }}
+              className="w-full py-2 px-4 bg-white hover:bg-gray-100 text-primary-600 font-medium rounded-lg border border-primary-600 transition-colors"
+            >
+              Logout and Try Again
+            </button>
+          </div>
         </div>
       </div>
     );

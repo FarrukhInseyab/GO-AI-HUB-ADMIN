@@ -501,7 +501,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const confirmEmail = async (token: string): Promise<void> => {
     try {
       setIsLoading(true);
-      console.log('Confirming email with token:', token);
+      console.log('Confirming email with token:', token.trim());
       
       
       if (!token) {
@@ -511,18 +511,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Find user with this token
       console.log('Looking up user with token in database');
       
-      // First check if the token exists at all
-      const { count, error: countError } = await supabase
-        .from('users')
-        .select('*', { count: 'exact', head: true })
-        .eq('email_confirmation_token', token);
-        
-      console.log('Token count in database:', count, 'Error:', countError ? countError.message : 'None');
-      
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('*')
-        .eq('email_confirmation_token', token)
+        .eq('email_confirmation_token', token.trim())
         .single();
       
       console.log('User lookup result:', userError ? `Error: ${userError.message}` : 'Success', userData ? `Data found for: ${userData.email}` : 'No data');
@@ -560,12 +552,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Email confirmation successful');
       
       // If the user is already logged in, update their profile
-      if (user && user.id === userData.id) {
+      if (user) {
         setIsConfirmed(true);
-        setUser({
-          ...user,
-          email_confirmed: true
-        } as User);
+        
+        // Force refresh the session to get updated user data
+        await refreshSession();
       }
       
       return;
@@ -586,9 +577,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       await Promise.race([logoutPromise, timeoutPromise]);
       setUser(null);
+      setIsConfirmed(false);
     } catch (error) {
       // Even if logout fails, clear the user state
       setUser(null);
+      setIsConfirmed(false);
     }
   };
 
