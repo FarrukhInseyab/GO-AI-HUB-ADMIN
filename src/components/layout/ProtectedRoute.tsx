@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Header from './Header';
@@ -10,19 +10,28 @@ const ProtectedRoute: React.FC = () => {
   const { user, isLoading, isConfirmed } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [showConfirmationRequired, setShowConfirmationRequired] = useState(false);
+  const navigate = useNavigate();
 
   // For debugging
   console.log('ProtectedRoute - User:', user?.email);
   console.log('ProtectedRoute - isConfirmed:', isConfirmed);
   console.log('ProtectedRoute - User email_confirmed:', user?.email_confirmed);
   
-  // If user is confirmed in database but not in state, force a refresh
+  // Check if we need to show the confirmation required message
   useEffect(() => {
-    if (user && user.email_confirmed && !isConfirmed) {
-      console.log('User is confirmed in database but not in state, forcing refresh');
-      refreshSession();
+    if (user) {
+      // If user exists but is not confirmed, show confirmation required
+      const needsConfirmation = !isConfirmed && !user.email_confirmed;
+      setShowConfirmationRequired(needsConfirmation);
+      
+      // If user is confirmed in database but not in state, force a refresh
+      if (user.email_confirmed && !isConfirmed) {
+        console.log('User is confirmed in database but not in state, forcing refresh');
+        refreshSession();
+      }
     }
-  }, [user, isConfirmed]);
+  }, [user, isConfirmed, refreshSession]);
 
   // If auth is still loading, show loading state
   if (isLoading) {
@@ -42,7 +51,7 @@ const ProtectedRoute: React.FC = () => {
   }
 
   // If email is not confirmed, show confirmation required message
-  if (user && !isConfirmed) {
+  if (user && showConfirmationRequired) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-900 via-primary-800 to-primary-700 flex justify-center items-center p-4">
         <div className="bg-white p-6 rounded-xl shadow-2xl max-w-md w-full animate-fade-in-up">
@@ -64,17 +73,10 @@ const ProtectedRoute: React.FC = () => {
               Return to Login
             </button>
             <button
-              onClick={async () => {
-                try {
-                  await logout();
-                  navigate('/login');
-                } catch (error) {
-                  navigate('/login');
-                }
-              }}
+              onClick={() => navigate('/login')}
               className="w-full py-2 px-4 bg-white hover:bg-gray-100 text-primary-600 font-medium rounded-lg border border-primary-600 transition-colors"
             >
-              Logout and Try Again
+              Try Again
             </button>
           </div>
         </div>

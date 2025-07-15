@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle, AlertCircle, ArrowLeft, Loader2 } from 'lucide-react';
+import { CheckCircle, AlertCircle, ArrowLeft, Loader2, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext'; 
 import Button from '../components/ui/Button';
 import { Card, CardHeader, CardContent, CardFooter } from '../components/ui/Card';
@@ -15,6 +15,7 @@ const ConfirmEmailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isProcessing, setIsProcessing] = useState(true);
+  const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -35,10 +36,24 @@ const ConfirmEmailPage: React.FC = () => {
       try {
         await confirmEmail(cleanToken);
         setSuccess(true);
-        console.log('Email confirmed successfully, redirecting to dashboard immediately');
-        // Force redirect to dashboard
-        window.location.href = '/';
-        return;
+        console.log('Email confirmed successfully, redirecting to login page');
+        
+        // Get email from token if possible
+        try {
+          const decodedToken = atob(cleanToken);
+          const [extractedEmail] = decodedToken.split(':');
+          if (extractedEmail && extractedEmail.includes('@')) {
+            setEmail(extractedEmail);
+          }
+        } catch (e) {
+          console.error('Could not extract email from token:', e);
+        }
+        
+        // Wait a moment to show success message before redirecting
+        setTimeout(() => {
+          // Redirect to login page with confirmed=true parameter
+          navigate(`/login?confirmed=true${email ? `&email=${encodeURIComponent(email)}` : ''}`);
+        }, 2000);
       } catch (err: any) {
         console.error('Confirmation error:', err);
         setError(err.message || 'Failed to confirm email');
@@ -86,13 +101,14 @@ const ConfirmEmailPage: React.FC = () => {
                   <CheckCircle className="h-6 w-6 mr-2 text-green-500 flex-shrink-0" />
                   <h3 className="font-medium">Email Confirmed</h3>
                 </div>
-                <p className="text-sm">Your email has been successfully confirmed. You will be redirected to the dashboard.</p>
+                <p className="text-sm">Your email has been successfully confirmed. You will be redirected to the login page in a moment.</p>
                 <div className="mt-4 text-center">
                   <Button
                     variant="primary"
-                    onClick={() => window.location.href = '/'}
+                     onClick={() => navigate(`/login?confirmed=true${email ? `&email=${encodeURIComponent(email)}` : ''}`)}
+                     leftIcon={<LogIn className="h-4 w-4" />}
                   >
-                    Go to Dashboard Now
+                    Go to Login Now
                   </Button>
                 </div>
               </div>

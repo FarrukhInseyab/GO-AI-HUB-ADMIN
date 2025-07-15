@@ -252,7 +252,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     try {
       const loginPromise = supabase.auth.signInWithPassword({
-        email: email.toLowerCase().trim(),
+        email: email.toLowerCase().trim(), 
         password: password
       });
       
@@ -267,6 +267,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         throw new Error('Invalid email or password');
+      }
+      
+      // Check if user's email is confirmed
+      if (data.user) {
+        const { data: userData } = await supabase
+          .from('users')
+          .select('email_confirmed')
+          .eq('user_id', data.user.id)
+          .single();
       }
 
       if (data.user) {
@@ -501,7 +510,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const confirmEmail = async (token: string): Promise<void> => {
     try {
       setIsLoading(true);
-      console.log('Confirming email with token:', token);
+      console.log('Confirming email with token:', token.substring(0, 5) + '...');
       
       
       if (!token) {
@@ -550,12 +559,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Update user as confirmed
       console.log('Updating user as confirmed, ID:', userData.id);
       const { error: updateError } = await supabase
-        .from('users')
-        .update({
-          email_confirmed: true,
-          email_confirmation_token: null
-        })
-        .eq('id', userData.id);
+          .from('users')
+          .update({
+            email_confirmed: true,
+            email_confirmation_token: null
+          })
+          .eq('id', userData.id);
       
       if (updateError) {
         console.error('Error updating user confirmation status:', updateError);
@@ -564,17 +573,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       console.log('Email confirmation successful, setting isConfirmed to true');
       
-      // Update confirmation status in the current session
       setIsConfirmed(true);
-      
-      // Force refresh the session to get updated user data
-      try {
-        await refreshSession();
-        console.log('Session refreshed successfully after confirmation');
-      } catch (refreshError) {
-        console.error('Error refreshing session after confirmation:', refreshError);
-        // Continue even if refresh fails, we've already set isConfirmed
-      }
       
       return;
     } catch (error) {
