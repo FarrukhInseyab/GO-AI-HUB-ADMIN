@@ -1,17 +1,20 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
 import { supabase } from '../lib/supabase';
-import emailService from '../utils/emailService'; // Import the updated email service
+import emailService from '../utils/emailService';
+import { generateToken } from '../utils/helpers';
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  isConfirmed: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string, country?: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (password: string) => Promise<void>;
+  confirmEmail: (token: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -27,6 +30,7 @@ export function useAuth() {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isConfirmed, setIsConfirmed] = useState(false);
   const [resetPasswordToken, setResetPasswordToken] = useState<string | null>(null);
 
   useEffect(() => {
@@ -161,7 +165,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(userData);
       } else {
         await createMissingProfile(userId, userEmail);
+        return;
       }
+      
+      // Set confirmation status
+      setIsConfirmed(profile.email_confirmed || false);
     } catch (error) {
       // If it's an access denied error, re-throw it
       if (error instanceof Error && error.message.includes('Access denied')) {
@@ -405,7 +413,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = async (name: string, email: string, password: string, country: string = 'Saudi Arabia') => {
     try {
       const signupPromise = supabase.auth.signUp({
-        email,
+        email: email.toLowerCase().trim(),
         password,
         options: {
           data: {
@@ -428,30 +436,102 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) {
         throw new Error(error.message);
       }
+      
+      if (!data.user) {
+        throw new Error('Failed to create user account');
+      }
 
-      if (data.user && data.session) {
-        await fetchUserProfile(data.user.id, data.user.email);
-      } else if (data.user && !data.session) {
-        // Generate a confirmation token
-        const confirmationToken = btoa(data.user.id + ':' + new Date().getTime());
-        
-        // Send confirmation email
-        const emailSent = await emailService.sendSignupConfirmationEmail(
-          data.user.email,
-          name,
-          confirmationToken
-        );
-        
-        console.log('Signup confirmation email sent:', emailSent);
-        
-        if (!emailSent) {
-          throw new Error('Failed to send confirmation email. Please try again.');
-        } else {
-          throw new Error('Please check your email to confirm your account');
-        }
+      // Generate a confirmation token
+      const confirmationToken = generateToken();
+      
+      // Store the token in the database
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({
+          email_confirmation_token: confirmationToken,
+          confirmation_sent_at: new Date().toISOString()
+        })
+        .eq('user_id', data.user.id);
+      
+      if (updateError) {
+        console.error('Error storing confirmation token:', updateError);
+      }
+      
+      // Send confirmation email
+      const emailSent = await emailService.sendSignupConfirmationEmail(
+        data.user.email,
+        name,
+        confirmationToken
+      );
+      
+      console.log('Signup confirmation email sent:', emailSent);
+      
+      if (!emailSent) {
+        throw new Error('Failed to send confirmation email. Please try again.');
+      } else {
+        throw new Error('Please check your email to confirm your account');
       }
     } catch (error) {
       throw error;
+    }
+  };
+  
+  const confirmEmail = async (token: string): Promise<void> => {
+    try {
+      setIsLoading(true);
+      
+      if (!token) {
+        throw new Error('Invalid confirmation token');
+      }
+      
+      // Find user with this token
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email_confirmation_token', token)
+        .single();
+      
+      if (userError || !userData) {
+        throw new Error('Invalid or expired confirmation token');
+      }
+      
+      // Check if token is expired (24 hours)
+      const confirmationSentAt = new Date(userData.confirmation_sent_at);
+      const now = new Date();
+      const hoursSinceConfirmationSent = (now.getTime() - confirmationSentAt.getTime()) / (1000 * 60 * 60);
+      
+      if (hoursSinceConfirmationSent > 24) {
+        throw new Error('Confirmation token has expired. Please request a new one.');
+      }
+      
+      // Update user as confirmed
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({
+          email_confirmed: true,
+          email_confirmation_token: null
+        })
+        .eq('id', userData.id);
+      
+      if (updateError) {
+        throw new Error('Failed to confirm email. Please try again.');
+      }
+      
+      // If the user is already logged in, update their profile
+      if (user && user.id === userData.id) {
+        setIsConfirmed(true);
+        setUser({
+          ...user,
+          email_confirmed: true
+        } as User);
+      }
+      
+      return;
+    } catch (error) {
+      console.error('Email confirmation error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -471,7 +551,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, refreshSession, forgotPassword, resetPassword }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      isLoading, 
+      isConfirmed,
+      login, 
+      signup, 
+      logout, 
+      refreshSession, 
+      forgotPassword, 
+      resetPassword,
+      confirmEmail
+    }}>
       {children}
     </AuthContext.Provider>
   );

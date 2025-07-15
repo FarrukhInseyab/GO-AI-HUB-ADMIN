@@ -112,6 +112,13 @@ export const isValidEmail = (email: string): boolean => {
   return emailRegex.test(email);
 };
 
+export const generateToken = (): string => {
+  // Generate a random string for token
+  const randomPart = Math.random().toString(36).substring(2, 15);
+  const timestampPart = Date.now().toString(36);
+  return randomPart + timestampPart;
+};
+
 export const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
   

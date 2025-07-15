@@ -6,6 +6,7 @@ export type User = {
   company_name: string;
   country?: string;
   role: 'User' | 'Evaluator';
+  email_confirmed?: boolean;
   created_at: string;
   updated_at: string;
 };

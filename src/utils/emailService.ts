@@ -1,14 +1,14 @@
 // Email service for frontend - calls Nodemailer service
 
 const EMAIL_SERVICE_URL = import.meta.env.VITE_EMAIL_SERVICE_URL || 'http://localhost:3000';
-const APP_URL = import.meta.env.VITE_APP_URL || window.location.origin;
+const APP_URL = import.meta.env.VITE_APP_URL || window.location.origin || 'http://localhost:5173';
 
 // Email templates
 export const emailTemplates = {
   signupConfirmation: (name: string, confirmationLink: string) => ({
     subject: 'Welcome to GO AI HUB - Confirm Your Account',
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #ffffff;">
         <div style="text-align: center; margin-bottom: 20px;">
           <h1 style="color: #00afaf;">Welcome to GO AI HUB!</h1>
         </div>
@@ -260,14 +260,19 @@ export const sendEmail = async (
 export const sendSignupConfirmationEmail = async (
   email: string, 
   name: string, 
-  token: string
+  token: string,
+  appUrl?: string
 ): Promise<boolean> => {
   console.log('Sending signup confirmation email to:', email);
   console.log('With token:', token.substring(0, 5) + '...');
   
+  const confirmationLink = `${appUrl || APP_URL}/confirm-email?token=${token}`;
+  
   return await sendEmail(email, 'signup_confirmation', {
     name,
-    token
+    token,
+    subject: emailTemplates.signupConfirmation(name, confirmationLink).subject,
+    html: emailTemplates.signupConfirmation(name, confirmationLink).html
   });
 };
 
