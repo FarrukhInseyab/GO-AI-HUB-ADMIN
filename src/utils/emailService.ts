@@ -172,8 +172,7 @@ export const emailTemplates = {
         </div>
       </div>
     `
-  })
-  },
+  }),
   
   passwordReset: (name: string, resetLink: string) => ({
     subject: 'GO AI HUB - Password Reset Request',
