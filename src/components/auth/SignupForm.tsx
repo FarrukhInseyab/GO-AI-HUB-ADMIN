@@ -61,6 +61,7 @@ const SignupForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     
     if (!validatePassword(password)) {
       setError('Please fix the password requirements below');
@@ -73,14 +74,18 @@ const SignupForm: React.FC = () => {
     }
     
     try {
-      const result = await signup(name, email, password, country);
-      setSuccess('Account created successfully! Please check your email to confirm your account.');
-      // Clear form
-      setName('');
-      setEmail('');
-      setPassword('');
-      setConfirmPassword('');
-      setPasswordErrors([]);
+      await signup(name, email, password, country);
+      
+      // Success message is set in the signup function
+      if (!error) {
+        setSuccess('Account created successfully! Please check your email to confirm your account.');
+        // Clear form
+        setName('');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+        setPasswordErrors([]);
+      }
     } catch (err: any) {
       setError(err.message || t('auth.accountCreationFailed'));
     }

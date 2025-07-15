@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS || '*',
+  origin: '*', // Allow all origins for testing
   methods: ['POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -88,8 +88,10 @@ const emailTemplates = {
 // API endpoints
 app.post('/api/send-email', async (req, res) => {
   try {
-    const { to, type, name, token, appUrl, subject, html } = req.body;
+    console.log('Received email request:', req.body);
     
+    const { to, type, name, token, appUrl, subject, html } = req.body;
+
     if (!to) {
       return res.status(400).json({ 
         success: false, 
@@ -97,7 +99,7 @@ app.post('/api/send-email', async (req, res) => {
       });
     }
     
-    console.log(`Sending ${type || 'custom'} email to: ${to}`);
+    console.log(`Sending ${type || 'custom'} email to: ${to} with token: ${token?.substring(0, 5)}...`);
     
     let emailContent;
     
@@ -132,7 +134,7 @@ app.post('/api/send-email', async (req, res) => {
     
     const info = await transporter.sendMail(mailOptions);
     
-    console.log(`Email sent: ${info.messageId}`);
+    console.log(`Email sent successfully: ${info.messageId}`);
     
     res.status(200).json({ 
       success: true, 
@@ -150,7 +152,11 @@ app.post('/api/send-email', async (req, res) => {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.status(200).json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    emailServiceReady: true
+  });
 });
 
 // Start server

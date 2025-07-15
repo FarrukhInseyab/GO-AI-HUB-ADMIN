@@ -412,6 +412,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signup = async (name: string, email: string, password: string, country: string = 'Saudi Arabia') => {
     try {
+      console.log('Starting signup process for:', email);
       const signupPromise = supabase.auth.signUp({
         email: email.toLowerCase().trim(),
         password,
@@ -441,8 +442,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Failed to create user account');
       }
 
+      console.log('User created successfully:', data.user.id);
+
       // Generate a confirmation token
       const confirmationToken = generateToken();
+      console.log('Generated confirmation token');
       
       // Store the token in the database
       const { error: updateError } = await supabase
@@ -455,21 +459,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (updateError) {
         console.error('Error storing confirmation token:', updateError);
+      } else {
+        console.log('Confirmation token stored in database');
       }
       
       // Send confirmation email
-      const emailSent = await emailService.sendSignupConfirmationEmail(
-        data.user.email,
-        name,
-        confirmationToken
-      );
-      
-      console.log('Signup confirmation email sent:', emailSent);
-      
-      if (!emailSent) {
-        throw new Error('Failed to send confirmation email. Please try again.');
-      } else {
-        throw new Error('Please check your email to confirm your account');
+      try {
+        console.log('Attempting to send confirmation email to:', data.user.email);
+        const emailSent = await emailService.sendSignupConfirmationEmail(
+          data.user.email,
+          name,
+          confirmationToken
+        );
+        
+        console.log('Signup confirmation email sent:', emailSent);
+        
+        if (!emailSent) {
+          throw new Error('Failed to send confirmation email. Please try again.');
+        } else {
+          setSuccess('Please check your email to confirm your account');
+          return;
+        }
+      } catch (emailError) {
+        console.error('Error sending confirmation email:', emailError);
+        throw new Error('Account created but failed to send confirmation email. Please contact support.');
       }
     } catch (error) {
       throw error;

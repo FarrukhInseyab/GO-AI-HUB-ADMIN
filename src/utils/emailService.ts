@@ -1,6 +1,6 @@
 // Email service for frontend - calls Nodemailer service
 
-const EMAIL_SERVICE_URL = import.meta.env.VITE_EMAIL_SERVICE_URL || 'http://localhost:3000';
+const EMAIL_SERVICE_URL = import.meta.env.VITE_EMAIL_SERVICE_URL || 'http://localhost:3000/api';
 const APP_URL = import.meta.env.VITE_APP_URL || window.location.origin || 'http://localhost:5173';
 
 // Email templates
@@ -211,7 +211,7 @@ export const sendEmail = async (
   }
 ): Promise<boolean> => {
   try {
-    console.log('Sending email to:', to, 'with type:', type, 'via Nodemailer service');
+    console.log('Sending email to:', to, 'with type:', type, 'via Email service');
     
     const payload: any = {
       to,
@@ -227,7 +227,10 @@ export const sendEmail = async (
       payload.html = data.html;
     }
     
-    const response = await fetch(`${EMAIL_SERVICE_URL}/api/send-email`, {
+    console.log('Email service URL:', EMAIL_SERVICE_URL);
+    console.log('Sending payload:', JSON.stringify(payload));
+    
+    const response = await fetch(`${EMAIL_SERVICE_URL}/send-email`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -243,15 +246,15 @@ export const sendEmail = async (
       } catch (e) {
         errorData = { error: errorText };
       }
-      console.error('Nodemailer service error:', response.status, errorData);
+      console.error('Email service error:', response.status, errorData);
       throw new Error(errorData.error || `Failed to send email: ${response.status}`);
     }
     
     const result = await response.json();
-    console.log('Nodemailer service response:', result);
+    console.log('Email service response:', result);
     return result.success;
   } catch (error) {
-    console.error('Error sending email through Nodemailer service:', error);
+    console.error('Error sending email through Email service:', error);
     return false;
   }
 };
