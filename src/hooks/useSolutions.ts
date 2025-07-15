@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Solution } from '../types';
 import { useSupabase } from './useSupabase';
 import { supabase } from '../lib/supabase';
+import emailService from '../utils/emailService';
 
 export const useSolutions = () => {
   const [solutions, setSolutions] = useState<Solution[]>([]);
@@ -36,7 +37,33 @@ export const useSolutions = () => {
       () => supabase
         .from('solutions')
         .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id)
+        .eq('id', id),
+      {
+        onSuccess: async (data) => {
+          // If this is a new solution registration, send an email
+          if (updates.status === 'pending' && data) {
+            try {
+              // Get the full solution data
+              const { data: solutionData } = await supabase
+                .from('solutions')
+                .select('*')
+                .eq('id', id)
+                .single();
+                
+              if (solutionData && solutionData.contact_email) {
+                await emailService.sendSolutionRegistrationEmail(
+                  solutionData.contact_email,
+                  solutionData.contact_name,
+                  solutionData.solution_name,
+                  id
+                );
+              }
+            } catch (error) {
+              console.error('Error sending solution registration email:', error);
+            }
+          }
+        }
+      }
     );
   }, [executeQuery]);
 

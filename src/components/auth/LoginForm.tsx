@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Mail, Lock, AlertCircle } from 'lucide-react';
+import { Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
@@ -12,9 +12,27 @@ const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const { login, isLoading } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isConfirmed = searchParams.get('confirmed') === 'true';
+  const emailFromUrl = searchParams.get('email');
+
+  // Set email from URL if available
+  useEffect(() => {
+    if (emailFromUrl) {
+      setEmail(emailFromUrl);
+    }
+  }, [emailFromUrl]);
+  
+  // Show success message if redirected from email confirmation
+  useEffect(() => {
+    if (isConfirmed) {
+      setSuccess('Your email has been confirmed successfully! Please log in to continue.');
+    }
+  }, [isConfirmed]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +45,13 @@ const LoginForm: React.FC = () => {
     
     try {
       await login(email, password);
-      navigate('/');
+      
+      // After successful login, check if user is confirmed
+      if (user && user.email_confirmed) {
+        navigate('/');
+      } else {
+        setError('Your email is not confirmed. Please check your inbox for the confirmation link.');
+      }
     } catch (err: any) {
       console.error('Login error:', err);
       
@@ -61,6 +85,18 @@ const LoginForm: React.FC = () => {
           <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg flex items-start">
             <AlertCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
             <span className="text-sm">{error}</span>
+          </div>
+        )}
+
+        {success && (
+          <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-600 rounded-lg flex items-start">
+            <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+            <span className="text-sm">{success}</span>
+            {emailFromUrl && (
+              <div className="mt-2 text-xs text-green-700">
+                We've pre-filled your email address for convenience.
+              </div>
+            )}
           </div>
         )}
         

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { User, Mail, Lock, AlertCircle, MapPin } from 'lucide-react';
+import { User, Mail, Lock, AlertCircle, MapPin, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
@@ -14,6 +14,7 @@ const SignupForm: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [country, setCountry] = useState('Saudi Arabia');
+  const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const { signup, isLoading } = useAuth();
@@ -60,6 +61,7 @@ const SignupForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     
     if (!validatePassword(password)) {
       setError('Please fix the password requirements below');
@@ -73,7 +75,17 @@ const SignupForm: React.FC = () => {
     
     try {
       await signup(name, email, password, country);
-      navigate('/');
+      
+      // Success message is set in the signup function
+      if (!error) {
+        setSuccess('Account created successfully! Please check your email to confirm your account.');
+        // Clear form
+        setName('');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+        setPasswordErrors([]);
+      }
     } catch (err: any) {
       setError(err.message || t('auth.accountCreationFailed'));
     }
@@ -101,6 +113,16 @@ const SignupForm: React.FC = () => {
           <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg flex items-start">
             <AlertCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
             <span className="text-sm">{error}</span>
+          </div>
+        )}
+        
+        {success && (
+          <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-600 rounded-lg flex items-start">
+            <CheckCircle className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium">{success}</p>
+              <p className="text-sm mt-1">Please check your email inbox and click the confirmation link to activate your account.</p>
+            </div>
           </div>
         )}
         

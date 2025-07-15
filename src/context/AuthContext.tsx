@@ -1,17 +1,20 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
 import { supabase } from '../lib/supabase';
-import emailService from '../utils/emailService'; // Import the updated email service
+import emailService from '../utils/emailService';
+import { generateToken } from '../utils/helpers';
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  isConfirmed: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string, country?: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (password: string) => Promise<void>;
+  confirmEmail: (token: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -27,6 +30,7 @@ export function useAuth() {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isConfirmed, setIsConfirmed] = useState(false);
   const [resetPasswordToken, setResetPasswordToken] = useState<string | null>(null);
 
   useEffect(() => {
@@ -161,7 +165,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(userData);
       } else {
         await createMissingProfile(userId, userEmail);
+        return;
       }
+      
+      // Set confirmation status
+      setIsConfirmed(profile.email_confirmed || false);
     } catch (error) {
       // If it's an access denied error, re-throw it
       if (error instanceof Error && error.message.includes('Access denied')) {
@@ -244,7 +252,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     try {
       const loginPromise = supabase.auth.signInWithPassword({
-        email: email.toLowerCase().trim(),
+        email: email.toLowerCase().trim(), 
         password: password
       });
       
@@ -259,6 +267,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         throw new Error('Invalid email or password');
+      }
+      
+      // Check if user's email is confirmed
+      if (data.user) {
+        const { data: userData } = await supabase
+          .from('users')
+          .select('email_confirmed')
+          .eq('user_id', data.user.id)
+          .single();
       }
 
       if (data.user) {
@@ -321,7 +338,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Failed to send recovery email');
       }
 
-      // 🔴 Removed `return true;`
+      return; // Just return void as the function signature indicates
     } catch (emailError) {
       console.error('Error sending password reset email:', emailError);
       throw emailError;
@@ -338,20 +355,61 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const resetPassword = async (password: string): Promise<void> => {
   try {
     setIsLoading(true);
-    console.log('Attempting to update password');
+    console.log('Attempting to reset password');
 
-    if (user) {
-      const { error } = await supabase.auth.updateUser({ password });
+    // Get the token from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    
+    if (!token) {
+      throw new Error('Reset token is missing');
+    }
+    
+    // Parse the token to get the email and timestamp
+    try {
+      const decodedToken = atob(token);
+      const [email] = decodedToken.split(':');
+      
+      if (!email) {
+        throw new Error('Invalid reset token format');
+      }
+      
+      // Verify token from localStorage
+      const storedTokenData = localStorage.getItem('passwordResetToken:' + email);
+      if (!storedTokenData) {
+        throw new Error('Reset token has expired or is invalid');
+      }
+      
+      const { token: storedToken, expires } = JSON.parse(storedTokenData);
+      
+      if (storedToken !== token) {
+        throw new Error('Invalid reset token');
+      }
+      
+      if (expires < new Date().getTime()) {
+        localStorage.removeItem('passwordResetToken:' + email);
+        throw new Error('Reset token has expired');
+      }
+      
+      // Update password directly using updateUser API
+      const { error } = await supabase.auth.updateUser({
+        password: password
+      });
 
       if (error) {
         console.error('Password update error:', error);
-        console.log('Simulating password update instead');
-      } else {
-        console.log('Password updated successfully through Supabase');
+        throw error;
       }
+      
+      // Clean up token
+      localStorage.removeItem('passwordResetToken:' + email);
+      
+      console.log('Password reset successful');
+      return;
+    } catch (tokenError) {
+      console.error('Token parsing error:', tokenError);
+      throw new Error('Invalid or expired reset token');
     }
-
-    // No return here
   } catch (error) {
     console.error('Password update error:', error);
     throw error;
@@ -363,8 +421,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signup = async (name: string, email: string, password: string, country: string = 'Saudi Arabia') => {
     try {
+      console.log('Starting signup process for:', email);
+      
+      // Generate a confirmation token before signup
+      const confirmationToken = generateToken();
+      console.log('Generated confirmation token');
+      
       const signupPromise = supabase.auth.signUp({
-        email,
+        email: email.toLowerCase().trim(),
         password,
         options: {
           data: {
@@ -387,14 +451,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) {
         throw new Error(error.message);
       }
+      
+      if (!data.user) {
+        throw new Error('Failed to create user account');
+      }
 
-      if (data.user && data.session) {
-        await fetchUserProfile(data.user.id, data.user.email);
-      } else if (data.user && !data.session) {
-        // Generate a confirmation token
-        const confirmationToken = btoa(data.user.id + ':' + new Date().getTime());
+      console.log('User created successfully:', data.user.id);
+
+      // Store the token in the database
+      try {
+        console.log('Storing token in database for user:', data.user.id);
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({
+            email_confirmation_token: confirmationToken,
+            confirmation_sent_at: new Date().toISOString()
+          })
+          .eq('user_id', data.user.id);
         
-        // Send confirmation email
+        if (updateError) {
+          console.error('Error storing confirmation token:', updateError);
+          throw updateError;
+        } else {
+          console.log('Confirmation token stored in database');
+        }
+      } catch (dbError) {
+        console.error('Database error when storing token:', dbError);
+        throw new Error('Failed to store confirmation token. Please try again.');
+      }
+      
+      
+      // Send confirmation email
+      try {
+        console.log('Attempting to send confirmation email to:', data.user.email);
         const emailSent = await emailService.sendSignupConfirmationEmail(
           data.user.email,
           name,
@@ -406,11 +495,92 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!emailSent) {
           throw new Error('Failed to send confirmation email. Please try again.');
         } else {
-          throw new Error('Please check your email to confirm your account');
+          setSuccess('Please check your email to confirm your account');
+          return;
         }
+      } catch (emailError) {
+        console.error('Error sending confirmation email:', emailError);
+        throw new Error('Account created but failed to send confirmation email. Please contact support.');
       }
     } catch (error) {
       throw error;
+    }
+  };
+  
+  const confirmEmail = async (token: string): Promise<void> => {
+    try {
+      setIsLoading(true);
+      console.log('Confirming email with token:', token.substring(0, 5) + '...');
+      
+      
+      if (!token) {
+        throw new Error('Invalid confirmation token');
+      }
+      
+      // Find user with this token
+      console.log('Looking up user with token in database');
+      
+      // First check if token exists at all
+      const { count, error: countError } = await supabase
+        .from('users')
+        .select('*', { count: 'exact', head: true })
+        .eq('email_confirmation_token', token);
+        
+      console.log('Token exists in database?', countError ? `Error: ${countError.message}` : `Count: ${count}`);
+      
+      if (countError) {
+        console.error('Error checking token existence:', countError);
+      }
+      
+      // Now get the actual user data
+      let { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email_confirmation_token', token.trim())
+        .single();
+      
+      console.log('User lookup result:', userError ? `Error: ${userError.message}` : 'Success', userData ? `Data found for: ${userData.email}` : 'No data');
+      
+      if (userError || !userData) {
+        console.error('User lookup error or no data found:', userError);
+        throw new Error('Invalid or expired confirmation token');
+      }
+      
+      // Check if token is expired (24 hours)
+      const confirmationSentAt = new Date(userData.confirmation_sent_at);
+      const now = new Date();
+      const hoursSinceConfirmationSent = confirmationSentAt ? (now.getTime() - confirmationSentAt.getTime()) / (1000 * 60 * 60) : 0;
+      
+      if (hoursSinceConfirmationSent > 24) {
+        console.error('Token expired, hours since sent:', hoursSinceConfirmationSent);
+        throw new Error('Confirmation token has expired. Please request a new one.');
+      }
+      
+      // Update user as confirmed
+      console.log('Updating user as confirmed, ID:', userData.id);
+      const { error: updateError } = await supabase
+          .from('users')
+          .update({
+            email_confirmed: true,
+            email_confirmation_token: null
+          })
+          .eq('id', userData.id);
+      
+      if (updateError) {
+        console.error('Error updating user confirmation status:', updateError);
+        throw new Error('Failed to confirm email. Please try again.');
+      }
+      
+      console.log('Email confirmation successful, setting isConfirmed to true');
+      
+      setIsConfirmed(true);
+      
+      return;
+    } catch (error) {
+      console.error('Email confirmation error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -423,14 +593,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       await Promise.race([logoutPromise, timeoutPromise]);
       setUser(null);
+      setIsConfirmed(false);
     } catch (error) {
       // Even if logout fails, clear the user state
       setUser(null);
+      setIsConfirmed(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, refreshSession, forgotPassword, resetPassword }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      isLoading, 
+      isConfirmed,
+      login, 
+      signup, 
+      logout, 
+      refreshSession, 
+      forgotPassword, 
+      resetPassword,
+      confirmEmail
+    }}>
       {children}
     </AuthContext.Provider>
   );

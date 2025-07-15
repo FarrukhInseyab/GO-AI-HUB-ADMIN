@@ -12,6 +12,7 @@ import InitiateContactDialog from '../components/business/InitiateContactDialog'
 import ConversionStatusDialog from '../components/business/ConversionStatusDialog';
 import ConversionMetrics from '../components/dashboard/ConversionMetrics';
 import ConversionTimeline from '../components/dashboard/ConversionTimeline';
+import emailService from '../utils/emailService';
 
 const BusinessInterestPage: React.FC = () => {
   const { refreshSession, user } = useAuth();
@@ -198,10 +199,24 @@ const BusinessInterestPage: React.FC = () => {
     setSelectedInterestId(interestId);
   };
 
-  const handleConfirmContact = async (comments: string) => {
+  const handleConfirmContact = async (comments: string): Promise<void> => {
     if (!selectedInterestId || !user || !supabase) return;
 
     try {
+      // Find the interest data first to get contact information
+      const { data: interestData } = await supabase
+        .from('interests')
+        .select(`
+          id, 
+          contact_name, 
+          contact_email, 
+          solutions (
+            solution_name
+          )
+        `)
+        .eq('id', selectedInterestId)
+        .single();
+
       const { error } = await supabase
         .from('interests')
         .update({
@@ -213,6 +228,18 @@ const BusinessInterestPage: React.FC = () => {
         .eq('id', selectedInterestId);
 
       if (error) throw error;
+
+      // Send email notification to the customer
+      if (interestData && interestData.contact_email) {
+        await emailService.sendContactAssignmentEmail(
+          interestData.contact_email,
+          interestData.contact_name,
+          interestData.solutions?.solution_name || 'Solution',
+          user.contact_name,
+          user.email,
+          comments
+        );
+      }
 
       setSelectedInterestId(null);
       fetchData();
