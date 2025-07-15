@@ -228,7 +228,7 @@ export const sendEmail = async (
     }
     
     console.log('Email service URL:', EMAIL_SERVICE_URL);
-    console.log('Sending payload:', JSON.stringify(payload));
+    console.log('Sending payload with token length:', data.token ? data.token.length : 0);
     
     const response = await fetch(`${EMAIL_SERVICE_URL}/send-email`, {
       method: 'POST',
@@ -267,9 +267,10 @@ export const sendSignupConfirmationEmail = async (
   appUrl?: string
 ): Promise<boolean> => {
   console.log('Sending signup confirmation email to:', email);
-  console.log('With token:', token.substring(0, 5) + '...');
+  console.log('With token length:', token.length);
   
   const confirmationLink = `${appUrl || APP_URL}/confirm-email?token=${token}`;
+  console.log('Confirmation link:', confirmationLink);
   
   return await sendEmail(email, 'signup_confirmation', {
     name,

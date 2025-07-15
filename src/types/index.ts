@@ -7,6 +7,7 @@ export type User = {
   country?: string;
   role: 'User' | 'Evaluator';
   email_confirmed?: boolean;
+  email_confirmed?: boolean;
   created_at: string;
   updated_at: string;
 };

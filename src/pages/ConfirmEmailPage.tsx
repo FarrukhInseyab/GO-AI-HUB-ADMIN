@@ -19,20 +19,26 @@ const ConfirmEmailPage: React.FC = () => {
   useEffect(() => {
     const verifyToken = async () => {
       if (!token) {
+        console.log('No token found in URL');
         setError('Invalid or missing confirmation token');
         setIsProcessing(false);
         return;
       }
 
+      console.log('Verifying token from URL:', token.substring(0, 5) + '...');
+      
       try {
         await confirmEmail(token);
         setSuccess(true);
         
+        console.log('Email confirmed successfully, redirecting to login');
+        
         // Redirect to login after 5 seconds
         setTimeout(() => {
-          navigate('/login');
+          navigate('/login?confirmed=true');
         }, 5000);
       } catch (err: any) {
+        console.error('Confirmation error:', err);
         setError(err.message || 'Failed to confirm email');
       } finally {
         setIsProcessing(false);

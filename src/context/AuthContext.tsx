@@ -413,6 +413,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = async (name: string, email: string, password: string, country: string = 'Saudi Arabia') => {
     try {
       console.log('Starting signup process for:', email);
+      
+      // Generate a confirmation token before signup
+      const confirmationToken = generateToken();
+      console.log('Generated confirmation token');
+      
       const signupPromise = supabase.auth.signUp({
         email: email.toLowerCase().trim(),
         password,
@@ -444,24 +449,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       console.log('User created successfully:', data.user.id);
 
-      // Generate a confirmation token
-      const confirmationToken = generateToken();
-      console.log('Generated confirmation token');
-      
       // Store the token in the database
-      const { error: updateError } = await supabase
-        .from('users')
-        .update({
-          email_confirmation_token: confirmationToken,
-          confirmation_sent_at: new Date().toISOString()
-        })
-        .eq('user_id', data.user.id);
-      
-      if (updateError) {
-        console.error('Error storing confirmation token:', updateError);
-      } else {
-        console.log('Confirmation token stored in database');
+      try {
+        console.log('Storing token in database for user:', data.user.id);
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({
+            email_confirmation_token: confirmationToken,
+            confirmation_sent_at: new Date().toISOString()
+          })
+          .eq('user_id', data.user.id);
+        
+        if (updateError) {
+          console.error('Error storing confirmation token:', updateError);
+          throw updateError;
+        } else {
+          console.log('Confirmation token stored in database');
+        }
+      } catch (dbError) {
+        console.error('Database error when storing token:', dbError);
+        throw new Error('Failed to store confirmation token. Please try again.');
       }
+      
       
       // Send confirmation email
       try {
@@ -492,19 +501,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const confirmEmail = async (token: string): Promise<void> => {
     try {
       setIsLoading(true);
+      console.log('Confirming email with token:', token.substring(0, 5) + '...');
+      
       
       if (!token) {
         throw new Error('Invalid confirmation token');
       }
       
       // Find user with this token
+      console.log('Looking up user with token in database');
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('*')
         .eq('email_confirmation_token', token)
         .single();
       
+      console.log('User lookup result:', userError ? 'Error' : 'Success', userData ? 'Data found' : 'No data');
+      
       if (userError || !userData) {
+        console.error('User lookup error or no data found:', userError);
         throw new Error('Invalid or expired confirmation token');
       }
       
@@ -514,10 +529,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const hoursSinceConfirmationSent = (now.getTime() - confirmationSentAt.getTime()) / (1000 * 60 * 60);
       
       if (hoursSinceConfirmationSent > 24) {
+        console.error('Token expired, hours since sent:', hoursSinceConfirmationSent);
         throw new Error('Confirmation token has expired. Please request a new one.');
       }
       
       // Update user as confirmed
+      console.log('Updating user as confirmed, ID:', userData.id);
       const { error: updateError } = await supabase
         .from('users')
         .update({
@@ -527,8 +544,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('id', userData.id);
       
       if (updateError) {
+        console.error('Error updating user confirmation status:', updateError);
         throw new Error('Failed to confirm email. Please try again.');
       }
+      
+      console.log('Email confirmation successful');
       
       // If the user is already logged in, update their profile
       if (user && user.id === userData.id) {
@@ -567,7 +587,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider value={{ 
       user, 
       isLoading, 
-      isConfirmed,
+      isConfirmed: user?.email_confirmed || isConfirmed,
       login, 
       signup, 
       logout, 
