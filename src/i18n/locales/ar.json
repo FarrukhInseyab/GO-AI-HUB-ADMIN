@@ -1,5 +1,14 @@
 {
   "common": {
+    "home": "الرئيسية",
+    "discover": "اكتشف الحلول",
+    "getListedShort": "انضم الآن",
+    "about": "من نحن",
+    "faq": "الأسئلة الشائعة",
+    "privacyPolicy": "سياسة الخصوصية",
+    "termsOfService": "شروط الخدمة",
+    "cookiePolicy": "سياسة ملفات تعريف الارتباط",
+    "allRightsReserved": "جميع الحقوق محفوظة.",
     "loading": "جاري التحميل...",
     "error": "خطأ",
     "success": "نجح",
@@ -55,6 +64,15 @@
     "country": "البلد"
   },
   "navigation": {
+     "successStories" : "قصص النجاح",
+   "marketInsights" : "رؤية السوق",
+   "goAdvantage" : "لماذا GO AI Hub؟",
+   "howItWorks" : "آلية العمل ",
+  "signIn" : "تسجيل الدخول",
+   "signOut" : "تسجيل الخروج",
+   "myProfile" : "ملفي الشخصي",
+   "goaiAgent" : "GOAI | رُوَّاد",
+  
     "dashboard": "لوحة التحكم",
     "evaluatorDashboard": "لوحة تحكم المقيم",
     "businessInterest": "الاهتمام التجاري",
@@ -68,6 +86,63 @@
     "login": "تسجيل الدخول",
     "signup": "إنشاء حساب"
   },
+  "landingPage":{
+          "heroTitle" : "جسر حلول الذكاء الاصطناعي ",
+      "heroSubtitle" : "نُمكِّن الجهات الحكومية والمؤسسات من تحقيق التحول الرقمي عبر حلول ذكاء اصطناعي متطورة مصممة خصيصاً لاحتياجاتهم.",
+      "vendorCTA" : "انضم الآن",
+      "governmentCTA" : "اكتشف الحلول",
+      "marketHighlightsTitle" : "أبرز إحصائيات سوق الذكاء الاصطناعي السعودي",
+      "successStoriesTitle" : "قصص النجاح",
+      "featuresTitle" : "مزايا المنصة",
+      "ctaTitle" : "هل أنت مستعد للتحول مع الذكاء الاصطناعي؟",
+      "ctaDescription" : "ساهم في بناء مستقبل رقمي واعد من خلال الانضمام إلى منظومتنا التي تضم نخبة من مزوّدي حلول الذكاء الاصطناعي .",
+      "footerTagline" : "تسريع تبني الذكاء الاصطناعي في الجهات الحكومية والمؤسسات في المملكة العربية السعودية. ",
+      "quickLinks" : "روابط سريعة",
+      "newsletter" : "النشرة الإخبارية",
+      "newsletterText" : "كن على اطلاع بأحدث حلول الذكاء الاصطناعي واتجاهات السوق.",
+      "emailPlaceholder" : "عنوان بريدك الإلكتروني",
+      "subscribe" : "اشترك",
+      "address" : "مركز الملك عبدالله المالي، الرياض، المملكة العربية السعودية"
+  
+
+  },
+  "siteFeatures": {
+  "featureTitle1": "تسجيل مدعوم بالذكاء الاصطناعي",
+  "featureDescription1": "روبوت المحادثة الذكي يوجه مزودي الحلول خلال عملية التأهيل.",
+  "featurePoint11": "واجهة محادثة لجمع المعلومات بسهولة",
+  "featurePoint12": "تعبئة تلقائية للنماذج من خلال المحادثة",
+  "featurePoint13": "التحقق الذكي لضمان اكتمال التقديمات",
+
+  "featureTitle2": "نظام تصنيف ذكي",
+  "featureDescription2": "تصنيفات مدعومة بالذكاء الاصطناعي لتسهيل اكتشاف الحلول.",
+  "featurePoint21": "تصنيف حسب فئات قطاع الأعمال",
+  "featurePoint22": "رسم خريطة للقدرات التقنية",
+  "featurePoint23": "تقييم التوافق التلقائي",
+
+  "featureTitle3": "دعم ثنائي اللغة",
+  "featureDescription3": "دعم كامل للغة العربية والإنجليزية عبر المنصة.",
+  "featurePoint31": "واجهة مخصصة بكلتا اللغتين",
+  "featurePoint32": "قدرات معالجة ذكاء اصطناعي تركّز على العربية أولًا",
+  "featurePoint33": "وعي بالامتثال الخاص بالمنطقة",
+
+  "featureTitle4": "الامتثال الحكومي",
+  "featureDescription4": "حلول متحقق منها وفق متطلبات الحكومة السعودية.",
+  "featurePoint41": "التحقق من معايير الأمان",
+  "featurePoint42": "الامتثال لسيادة البيانات",
+  "featurePoint43": "تقييم قابلية التكامل",
+
+  "featureTitle5": "تحليلات مزودي الحلول",
+  "featureDescription5": "رؤى تفصيلية حول أداء الحلول ومدى الاهتمام بها.",
+  "featurePoint51": "عرض مرات الظهور والتفاعل",
+  "featurePoint52": "تتبع الاهتمام بحلولك",
+  "featurePoint53": "مقارنة مع مزودي الخدمات المماثلين",
+
+  "featureTitle6": "تبسيط عملية الشراء",
+  "featureDescription6": "اتصال مبسط بين الحلول واحتياجات الأعمال",
+  "featurePoint61": "قناة اتصال مباشرة مع صناع القرار",
+  "featurePoint62": "حالة مورد مؤهل مسبقًا",
+  "featurePoint63": "تسريع إجراءات الشراء"
+},
   "auth": {
     "loginTitle": "تسجيل الدخول إلى GO AI HUB",
     "signupTitle": "إنشاء حساب GO AI HUB",
@@ -230,6 +305,461 @@
     "companyNotFoundDesc": "الشركة التي تبحث عنها غير موجودة أو تم حذفها.",
     "goBack": "العودة"
   },
+  "authentication":{
+      "createAccount": "إنشاء حساب",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "contactName": "اسم جهة الاتصال",
+      "companyName": "اسم الشركة",
+      "country": "الدولة",
+      "selectCountry": "اختر الدولة",
+      "signingIn": "جاري تسجيل الدخول...",
+      "creatingAccount": "جاري إنشاء الحساب...",
+      "dontHaveAccount": "ليس لديك حساب؟ سجل الآن",
+      "alreadyHaveAccount": "لديك حساب مسجل سابقا؟ سجل دخولك",
+      "comingSoon": "قريباً",
+      "comingSoonDescription": "خيارات تسجيل الدخول عبر Google و LinkedIn ستكون متاحة قريباً. في الوقت الحالي، يرجى استخدام البريد الإلكتروني وكلمة المرور لإنشاء حسابك."
+  },
+  "vendorOnboarding":{
+      "vendorOnboardingTitle": "تسجيل مزودي الحلول بالذكاء الاصطناعي",
+      "vendorOnboardingSubtitle": "أخبرنا عن حل الذكاء الاصطناعي الخاص بك من خلال واجهة المحادثة",
+      "chatbotWelcome": "مرحبًا! أنا هنا لمساعدتك في إدراج حل الذكاء الاصطناعي الخاص بك على منصتنا. لنبدأ ببعض المعلومات الأساسية حول الحل الخاص بك. ما هو اسم الحل وما هي المشكلة التي يحلها؟",
+      "chatbotQuestion1": "هذا يبدو مثيرًا للاهتمام! هل يمكنك إخباري المزيد عن الجوانب التقنية؟ ما هي تقنيات الذكاء الاصطناعي التي يستخدمها حلك (مثل معالجة اللغة ، رؤية الكمبيوتر، التعليم الآلي)؟",
+      "chatbotQuestion2": "رائع! هل تم نشر الحل الخاص بك مع أي عملاء أم لا يزال قيد التطوير؟ وهل يدعم اللغة العربية؟",
+      "chatbotQuestion3": "شكرًا على المعلومات. هل هناك أي شيء محدد حول كيفية تخصيص الحل للسوق السعودي أو حالات الاستخدام الحكومية؟",
+      "chatbotCompletion": "شكرًا لك! لدي جميع المعلومات اللازمة لبدء طلبك. سأنقلك الآن إلى نموذج التقديم حيث يمكنك المراجعة وإضافة المزيد من التفاصيل.",
+      "progressStart": "بداية",
+      "progressComplete": "اكتمال",
+      "typeMessage": "اكتب رسالتك هنا...",
+      "skipToForm": "تخطي إلى النموذج",
+      "moveToForm": "الانتقال إلى النموذج",
+      "chatCompleted": "اكتملت المحادثة - جاري التوجيه إلى النموذج...",
+      "signInToGetListed": "سجل دخولك للحصول على القائمة",
+      "signInDescription": "يرجى تسجيل الدخول أو إنشاء حساب لإدراج حل الذكاء الاصطناعي الخاص بك."
+
+  },
+
+  "submissionForm":{
+      "submissionFormTitle": "نموذج تقديم الحل",
+      "submissionFormSubtitle": "أكمل تفاصيل الحل الخاص بك للمراجعة",
+      "basicInfo": "المعلومات الأساسية",
+      "solutionOverview": "نظرة عامة على الحل",
+      "deploymentMaturity": "النشر",
+      "attachmentsLegal":  "المرفقات والشؤون القانونية",
+      
+      "website": "الموقع الإلكتروني",
+      "revenue": "الإيرادات السنوية",
+      "employees": "عدد الموظفين",
+      "registration": "وثيقة تسجيل الشركة/ سجل الشركة التجاري",
+      "linkedin": "ملف الشركة على LinkedIn",
+      
+      "solutionName": "اسم الحل",
+      "summary": "ملخص الحل",
+      "description": "وصف كامل",
+      "industryFocus": "التركيز الصناعي",
+      "techCategory": "فئات التكنولوجيا",
+      "aiTags": "تصنيفات المنشأة بالذكاء الاصطناعي",
+      "deploymentModel": "نموذج النشر",
+      "arabicSupport": "الحل يدعم اللغة العربية",
+      
+      "trl": "مستوى جاهزية التكنولوجيا (TRL)",
+      "deploymentStatus": "حالة النشر",
+      "clients": "العملاء الحاليين (اختياري)",
+      "ksaCustomization": "الحل لديه تخصيصات خاصة بالمملكة العربية السعودية",
+      
+      "pitchDeck": "عرض تقديمي (PDF)",
+      "demoVideo": "رابط فيديو توضيحي (اختياري)",
+      "position": "المنصب",
+      "contactEmail": "البريد الإلكتروني للتواصل",
+      "legalTerms": "أوافق على",
+      "and": "و"
+
+  },
+
+  "FormHelpers":{
+      "selectRevenue": "اختر نطاق الإيرادات",
+      "selectEmployees": "اختر عدد الموظفين",
+      "uploadFile": "تحميل الملف",
+      "registrationHelp": "قم بتحميل وثيقة تسجيل الشركة الرسمية (PDF، JPG، PNG)",
+      "summaryPlaceholder": "قدم ملخصًا موجزًا لحلك (100-200 كلمة)",
+      "descriptionPlaceholder": "صف الحل الخاص بك بالتفصيل، بما في ذلك الميزات الرئيسية والفوائد وحالات الاستخدام",
+      "clientsPlaceholder": "قائمة بأي عملاء حاليين أو مراجع (مفصولة بفواصل)",
+      "selectDeploymentModel": "اختر نموذج النشر",
+      "selectTRL": "اختر مستوى TRL",
+      "selectDeploymentStatus": "اختر حالة النشر",
+      "ksaCustomizationPlaceholder": "صف أي تخصيصات محددة للسوق السعودي",
+      "pitchDeckHelp": "قم بتحميل عرض تقديمي بصيغة PDF (الحد الأقصى 10 ميجابايت)",
+      "selectPosition": "اختر المنصب",
+      
+      "aiGenerated": "منشأ بالذكاء الاصطناعي",
+      "summaryTooltip": "سيظهر هذا الملخص في نتائج البحث ومعاينات الحلول",
+      "aiTagsTooltip": "يتم إنشاء هذه التصنيفات تلقائيًا بناءً على وصف حلك",
+      "aiTagsHelp": "ستساعد هذه التصنيفات المستخدمين في العثور على الحل الخاص بك بناءً على احتياجاتهم",
+      "trlTooltip": "يشير مستوى جاهزية التكنولوجيا إلى مدى نضج الحل الخاص بك",
+      
+      "back": "رجوع",
+      "next": "التالي",
+      "submit": "إرسال",
+      "save": "حفظ",
+      "cancel": "إلغاء",
+      "delete": "حذف",
+      "edit": "تعديل",
+      "view": "عرض",
+      "close": "إغلاق",
+      "loading": "جاري التحميل...",
+      "submitting": "جاري الإرسال...",
+      "deleting": "جاري الحذف...",
+      "other": "أخرى",
+      "yes": "نعم",
+      "no": "لا",
+      "optional": "اختياري",
+      "required": "مطلوب",
+      "formSubmitSuccess": "تم تقديم الحل الخاص بك بنجاح! سنقوم بمراجعته والرد عليك قريبًا."
+
+  },
+  "discoverPage":{
+        "discoverTitle": "اكتشف حلول الذكاء الاصطناعي",
+        "discoverSubtitle": "تصفح كتالوج حلول الذكاء الاصطناعي للحكومة والشركات",
+        "searchPlaceholder": "ابحث عن الحلول حسب الاسم أو الوصف أو التكنولوجيا...",
+        "filters": "تصفية",
+        "filterBy": "تصفية حسب",
+        "clearFilters": "مسح جميع عوامل التصفية",
+        "industries": "الصناعات",
+        "technologies": "التقنيات",
+        "sortNewest": "الأحدث أولاً",
+        "sortRating": "الأعلى تقييمًا",
+        "sortAlphabetical": "أبجدي",
+        "showing": "عرض",
+        "results": "نتيجة",
+        "noResults": "لم يتم العثور على نتائج تطابق معاييرك",
+        "viewDetails": "عرض التفاصيل",
+        "arabicSupported": "العربية",
+        "added": "أضيف",
+        "interested": "مهتم",
+        "aiMatch": "مطابقة الذكاء الاصطناعي"
+  },
+  "solutionDetails":{
+      "overview": "نظرة عامة",
+      "detailedDescription": "وصف مفصل",
+      "featuresCapabilities": "الميزات والقدرات",
+      "saudiMarketCustomization": "تخصيص السوق السعودي",
+      "companyInformation": "معلومات الشركة",
+      "contactInformation": "معلومات الاتصال",
+      "additionalResources": "موارد إضافية",
+      "watchDemoVideo": "مشاهدة فيديو توضيحي",
+      "viewPitchDeck": "عرض العرض التقديمي",
+      "contactViaEmail": "التواصل عبر البريد الإلكتروني",
+      "imInterested": "أنا مهتم",
+      "viewAllImages": "عرض جميع الصور",
+      "changeHeaderImage": "تغيير صورة الحل الخاص بك",
+      "selectHeaderImage": "اختر صورة الحل الخاص بك",
+      "selectHeaderImageDescription": "اختر الصورة التي تريد عرضها كصورة رئيسية لحلك. هذه الصورة ستظهر في صفحة التفاصيل وفي نتائج البحث.",
+      "currentImage": "الحالية",
+      "setAsHeader": "اختر كصورة رئيسية",
+      "backToSolutions": "العودة إلى الحلول",
+      "expressInterest": "التعبير عن الاهتمام",
+      "phone": "الهاتف",
+      "message": "الرسالة",
+      "describeInterest": "يرجى وصف اهتمامك بهذا الحل...",
+      "interestSubmitted": "تم تقديم اهتمامك بنجاح! سيتواصل معك فريقنا قريبًا."
+
+  },
+  "aiRecomendation":{
+      "aiSolutionRecommendation": "توصية حل الذكاء الاصطناعي",
+    "aiRecommendationDescription": "صف احتياجاتك ومتطلباتك، وسيقوم الذكاء الاصطناعي لدينا بتحليل مدى توافق هذا الحل معها.",
+    "specificNeeds": "ما هي احتياجاتك ومتطلباتك المحددة؟",
+    "needsPlaceholder": "صف حالة الاستخدام الخاصة بك، والمتطلبات التقنية، واحتياجات التكامل، إلخ...",
+    "generateRecommendation": "إنشاء توصية",
+    "compatibilityScore": "نقاط التوافق",
+    "keyStrengths": "نقاط القوة الرئيسية",
+    "potentialGaps": "الثغرات المحتملة",
+    "implementationConsiderations": "اعتبارات التنفيذ",
+    "backToSolution": "العودة إلى الحل"
+
+  },
+  "userProfile":{
+      "myProfile": "ملفي الشخصي",
+      "mySolutions": "حلولي",
+      "solutionsImInterestedIn": "الحلول التي أهتم بها",
+      "memberSince": "عضو منذ",
+      "submitted": "مقدم",
+      "status": "الحالة",
+      "pending": "قيد الانتظار",
+      "approved": "موافق عليه",
+      "rejected": "مرفوض",
+      "viewSolution": "عرض الحل",
+      "removeSolution": "إزالة الحل",
+      "removeInterest": "إزالة الاهتمام",
+      "confirmDeletion": "تأكيد الحذف",
+      "deleteSolution": "حذف الحل",
+      "deleteInterest": "حذف الاهتمام",
+      "deletionWarning": "هل أنت متأكد من أنك تريد حذف",
+      "solutionDeletionNote": "سيؤدي هذا أيضًا إلى إزالة جميع الاهتمامات ذات الصلة.",
+      "cannotBeUndone": "لا يمكن التراجع عن هذا الإجراء.",
+      "noSolutionsYet": "لم تقدم أي حلول بعد.",
+      "submitSolution": "تقديم حل",
+      "noInterestsYet": "لم تظهر اهتمامًا بأي حلول بعد.",
+      "discoverSolutions": "اكتشف الحلول",
+      "interestedUsers": "المستخدمون المهتمون",
+      "received": "تم الاستلام",
+      "interestShownOn": "تم إظهار الاهتمام في"
+  },
+
+  "aboutPage":{
+      "aboutTitle": "حول منصة حلول الذكاء الاصطناعي",
+      "aboutSubtitle": "مبادرة من GO Telecom لربط الابتكار المحلي والدولي في مجال الذكاء الاصطناعي برحلة التحول الرقمي في المملكة العربية السعودية.",
+      "ourMission": "مهمتنا",
+      "missionDescription": "منصة حلول الذكاء الاصطناعي هي مبادرة رائدة أطلقتها GO Telecom لإنشاء نظام  شامل يربط حلول الذكاء الاصطناعي المتطورة بالجهات الحكومية والشركات في جميع أنحاء المملكة العربية السعودية. تعمل منصتنا كجسر بين مزودي الذكاء الاصطناعي المبتكرين والمنظمات التي تقود التحول الرقمي بما يتماشى مع رؤية 2030.",
+      "globalInnovation": "الابتكار العالمي",
+      "globalInnovationDesc": "نجمع أفضل حلول الذكاء الاصطناعي من جميع أنحاء العالم، مما يجعل التكنولوجيا المتقدمة في متناول المنظمات واحتياجات الأعمال",
+      "localImpact": "التأثير المحلي",
+      "localImpactDesc": "نسهل اعتماد تقنيات الذكاء الاصطناعي عبر الوكالات الحكومية والشركات، مما يدفع عجلة التحول الرقمي في المملكة.",
+      "whatWeOffer": "ما نقدمه",
+      "curatedSolutions": "حلول منتقاة",
+      "curatedSolutionsDesc": "حلول ذكاء اصطناعي منتقاة بعناية تلبي الاحتياجات المخصصة لاحتياجات الأغمال.",
+      "directConnections": "اتصالات مباشرة",
+      "directConnectionsDesc": "اتصال سلس بين مزودي الحلول والعملاء المحتملين.",
+      "expertSupport": "دعم الخبراء",
+      "expertSupportDesc": "فريق مخصص لتوجيه المنظمات خلال عملية الاختيار والتنفيذ.",
+      "vision2030Alignment": "التوافق مع رؤية 2030",
+      "vision2030Description": "تدعم منصتنا بشكل مباشر رؤية المملكة العربية السعودية 2030 من خلال تسريع التحول الرقمي وتعزيز الابتكار وبناء اقتصاد قائم على المعرفة. نحن ملتزمون بجعل المملكة مركزًا عالميًا للذكاء الاصطناعي والتقنيات الناشئة."
+
+  },
+
+  "faqPage":{
+      "faqTitle": "الأسئلة الشائعة",
+      "faqSubtitle": "اعثر على إجابات للأسئلة الشائعة حول منصة حلول الذكاء الاصطناعي"
+
+  },
+
+  "howitworks":{
+      "howItWorksTitle": "كيف يعمل",
+      "howItWorksSubtitle": "رحلتك إلى تنفيذ الذكاء الاصطناعي أصبحت بسيطة",
+      "forSolutionProviders": "لمزودي الحلول",
+      "forOrganizations": "للمنظمات",
+      "submitSolutionStep": "تقديم الحل",
+      "submitSolutionDesc": "أكمل عملية التقديم الموجهة مع تفاصيل حول حل الذكاء الاصطناعي الخاص بك والمواصفات التقنية وقدرات التنفيذ.",
+      "verificationStep": "التحقق",
+      "verificationDesc": "يخضع الحل الخاص بك للتقييم التقني والتجاري لضمان تلبيته لمعايير الجودة ومتطلبات السوق.",
+      "goLiveStep": "البث المباشر",
+      "goLiveDesc": "بمجرد الموافقة، يصبح الحل الخاص بك متوفراً على المنصة للعملاء المحتملين وتبدأ في تلقي عملاء محتملين مؤهلين.",
+      "discoverStep": "اكتشف",
+      "discoverDesc": "تصفح كتالوجنا المنتقى من حلول الذكاء الاصطناعي المتحقق منها أو دع الذكاء الاصطناعي لدينا يوصي بحلول بناءً على احتياجاتك.",
+      "connectStep": "اتصل",
+      "connectDesc": "أظهر اهتمامًا بالحلول واتصل مباشرة بالمزودين للمناقشات التفصيلية والعروض التوضيحية.",
+      "implementStep": "تنفيذ",
+      "implementDesc": "اعمل مع مزود الحل لتنفيذ ودمج حل الذكاء الاصطناعي في مؤسستك.",
+      "whyChooseHub": "لماذا تختار منصة حلول الذكاء الاصطناعي؟",
+      "curatedSelection": "مجموعة منتقاة من حلول الذكاء الاصطناعي المتحقق منها",
+      "directAccess": "وصول مباشر إلى مزودي الحلول",
+      "aiPoweredRecommendations": "توصيات مدعومة بالذكاء الاصطناعي",
+      "complianceWithRegulations": "الامتثال للوائح المحلية",
+      "expertGuidance": "فريق متخصص يقدم الإرشاد خلال مراحل اختيار الحل وتنفيذه",
+
+
+      "successStoriesPageTitle": "قصص النجاح",
+      "successStoriesPageSubtitle": "اكتشف كيف تتحول المنظمات بحلول الذكاء الاصطناعي",
+      "impact": "التأثير"
+
+  },
+  "marketInsight":{
+      "marketInsightsTitle": "رؤية السوق",
+      "marketInsightsSubtitle": "تحليل شامل لمشهد سوق الذكاء الاصطناعي السعودي",
+      "industryAdoption": "اعتماد الصناعة",
+      "government": "الحكومة",
+      "healthcare": "الرعاية الصحية",
+      "finance": "المالية",
+      "education": "التعليم",
+      "growthForecast": "توقعات النمو",
+      "expectedMarketSize": "حجم السوق المتوقع بحلول 2030",
+      "annualGrowth": "النمو السنوي",
+      "aiProjects": "مشاريع الذكاء الاصطناعي",
+      "enterpriseAdoption": "اعتماد المؤسسات"
+
+  },
+  "advantagePage":{
+      "goAdvantageTitle": "لماذا GO AI Hub؟",
+      "goAdvantageSubtitle": "لماذا تختار المنظمات الرائدة GO AI Hub لتحولها في مجال الذكاء الاصطناعي",
+      "trustedVerification": "التحقق الموثوق",
+      "trustedVerificationDesc": "يخضع كل حل لتقييم تقني وتجاري صارم لضمان تلبيته لأعلى معايير الجودة والأمان والامتثال.",
+      "technicalCapabilityAssessment": "تقييم القدرة التقنية",
+      "securityComplianceVerification": "التحقق من الأمان والامتثال",
+      "performanceBenchmarking": "قياس الأداء",
+      "expertSupportTitle": "دعم الخبراء",
+      "expertSupportDesc": "يقدم فريقنا من متخصصي الذكاء الاصطناعي دعمًا شاملاً طوال رحلة تنفيذ الذكاء الاصطناعي.",
+      "solutionSelectionGuidance": "إرشاد اختيار الحل",
+      "implementationSupport": "دعم التنفيذ",
+      "ongoingOptimization": "مساعدة التحسين المستمر",
+      "acceleratedImplementation": "تنفيذ سريع",
+      "fasterDeployment": "نشر أسرع مقارنة بالإجراءات التقليدية",
+      "costReduction": "تخفيض التكلفة في عملية تقييم الحل",
+      "successRate": "معدل النجاح في تنفيذ الحل",
+      "globalNetwork": "الشبكة العالمية",
+      "solutionProviders": "مزودو الحلول",
+      "verifiedProviders": "مزودو حلول الذكاء الاصطناعي المتحقق منهم",
+      "globalLocalExpertise": "خبرة عالمية ومحلية",
+      "diverseIndustryCoverage": "تغطية صناعية متنوعة",
+      "implementationPartners": "شركاء التنفيذ",
+      "certifiedPartners": "شركاء تنفيذ معتمدون",
+      "localPresenceSupport": "وجود ودعم محلي",
+      "provenTrackRecord": "سجل حافل مثبت",
+      "exploreAISolutions": "استكشف حلول الذكاء الاصطناعي"
+
+  },
+  "privacyPolicy":{
+      "privacyPolicyTitle": "سياسة الخصوصية",
+      "privacyPolicySubtitle": "كيف نجمع ونستخدم ونحمي معلوماتك",
+      "yourPrivacyMatters": "خصوصيتك مهمة",
+      "informationWeCollect": "المعلومات التي نجمعها",
+      "informationWeCollectDesc": "نجمع المعلومات التي تقدمها لنا مباشرة، بما في ذلك:",
+      "contactInformationDesc": "معلومات الاتصال (الاسم، البريد الإلكتروني، رقم الهاتف)",
+      "companyInformationDesc": "معلومات الشركة",
+      "solutionDetailsDesc": "تفاصيل الحل والوثائق",
+      "usageDataDesc": "بيانات الاستخدام والتحليلات",
+      "howWeUseInformation": "كيف نستخدم معلوماتك",
+      "howWeUseInformationDesc": "نستخدم المعلومات المجمعة من أجل:",
+      "provideImproveServices": "تقديم وتحسين خدماتنا",
+      "processEvaluateSubmissions": "معالجة وتقييم مقدمات الحلول",
+      "facilitateConnections": "تسهيل الاتصالات بين مزودي الحلول والعملاء المحتملين",
+      "sendUpdates": "إرسال التحديثات والاتصالات المهمة",
+      "ensureSecurity": "ضمان أمان المنصة ومنع الاحتيال",
+      "dataStorageSecurity": "تخزين البيانات والأمان",
+      "dataStorageSecurityDesc": "يتم تخزين جميع البيانات بأمان داخل المملكة العربية السعودية، مع الامتثال لمتطلبات سيادة البيانات المحلية. نطبق التدابير التقنية والتنظيمية المناسبة لحماية معلوماتك.",
+      "informationSharing": "مشاركة المعلومات",
+      "informationSharingDesc": "نشارك المعلومات فقط:",
+      "withExplicitConsent": "بموافقتك الصريحة",
+      "toFacilitateConnections": "لتسهيل الاتصالات بين المزودين والعملاء",
+      "toComplyWithLegal": "للامتثال للالتزامات القانونية",
+      "withServiceProviders": "مع مزودي الخدمة الذين يساعدون في عملياتنا",
+      "yourRights": "حقوقك",
+      "yourRightsDesc": "لديك الحق في:",
+      "accessPersonalInfo": "الوصول إلى معلوماتك الشخصية",
+      "correctInaccurateInfo": "تصحيح المعلومات غير الدقيقة",
+      "requestDeletion": "طلب حذف معلوماتك",
+      "optOutMarketing": "إلغاء الاشتراك في الاتصالات التسويقية",
+      "contactUs": "اتصل بنا",
+      "privacyInquiries": "للاستفسارات المتعلقة بالخصوصية، يرجى الاتصال بنا على:"
+
+  },
+  "cookiePolicy":{
+      "cookiePolicyTitle": "سياسة ملفات تعريف الارتباط",
+      "cookiePolicySubtitle": "كيف نستخدم ملفات تعريف الارتباط والتقنيات المماثلة",
+      "understandingCookieUsage": "فهم استخدامنا لملفات تعريف الارتباط",
+      "whatAreCookies": "ما هي ملفات تعريف الارتباط؟",
+      "whatAreCookiesDesc": "ملفات تعريف الارتباط هي ملفات نصية صغيرة يتم وضعها على جهازك عند زيارة موقعنا الإلكتروني. تساعدنا في تقديم تجربة أفضل لك من خلال:",
+      "rememberingPreferences": "تذكر تفضيلاتك",
+      "understandingUsage": "فهم كيفية استخدامك لمنصتنا",
+      "keepingSignedIn": "إبقاؤك مسجلاً للدخول",
+      "protectingSecurity": "حماية أمانك",
+      "typesOfCookies": "أنواع ملفات تعريف الارتباط التي نستخدمها",
+      "essentialCookies": "ملفات تعريف الارتباط الأساسية",
+      "essentialCookiesDesc": "مطلوبة لعمل المنصة بشكل صحيح. لا يمكن تعطيل هذه.",
+      "functionalCookies": "ملفات تعريف الارتباط الوظيفية",
+      "functionalCookiesDesc": "تتذكر تفضيلاتك وتعزز تجربتك.",
+      "analyticsCookies": "ملفات تعريف الارتباط التحليلية",
+      "analyticsCookiesDesc": "تساعدنا في فهم كيفية استخدام الزوار لمنصتنا.",
+      "authenticationCookies": "ملفات تعريف الارتباط للمصادقة",
+      "authenticationCookiesDesc": "تبقيك مسجلاً للدخول وتحافظ على أمان جلستك.",
+      "managingCookies": "إدارة ملفات تعريف الارتباط",
+      "managingCookiesDesc": "يمكنك التحكم في ملفات تعريف الارتباط من خلال إعدادات متصفحك. ومع ذلك، قد يؤدي تعطيل ملفات تعريف الارتباط المعينة إلى تقييد قدرتك على استخدام بعض ميزات منصتنا.",
+      "thirdPartyCookies": "ملفات تعريف الارتباط من طرف ثالث",
+      "thirdPartyCookiesDesc": "نستخدم خدمات طرف ثالث موثوقة قد تضع أيضًا ملفات تعريف الارتباط على جهازك. تُستخدم هذه من أجل:",
+      "analyticsPerformance": "التحليلات ومراقبة الأداء",
+      "securityFraud": "الأمان ومنع الاحتيال",
+      "featureEnhancement": "تحسين الميزات",
+      "updatesToPolicy": "التحديثات على هذه السياسة",
+      "updatesPolicyDesc": "قد نحدث سياسة ملفات تعريف الارتباط هذه بشكل دوري. سنخطرك بأي تغييرات مهمة."
+
+  },
+
+
+   "revenue":{
+     "preRevenue": "ما قبل الإيرادات",
+  "lessThan1M": "أقل من 1 مليون دولار",
+  "between1and10M": "1-10 مليون دولار",
+  "between10and50M": "10-50 مليون دولار",
+  "moreThan50M": "أكثر من 50 مليون دولار"
+   },
+  "empOptions":{
+    "employees1to10": "1-10",
+  "employees11to50": "11-50",
+  "employees51to200": "51-200",
+  "employees201to500": "201-500",
+  "employees500plus": "500+"
+  },
+  "statusOptions":{
+    "newInterest": "اهتمام جديد",
+  "leadInitiated": "عميل محتمل مبدئي"
+  },
+  "errorMessages":{
+    "errorLoadingSolutions": "فشل في تحميل الحلول",
+  "errorLoadingProfile": "فشل في تحميل بيانات الملف الشخصي",
+  "errorSubmittingInterest": "فشل في تقديم الاهتمام. يرجى المحاولة مرة أخرى.",
+  "errorGeneratingRecommendation": "فشل في إنشاء التوصية. يرجى المحاولة مرة أخرى.",
+  "errorDeletingSolution": "فشل في حذف الحل",
+  "errorDeletingInterest": "فشل في حذف الاهتمام",
+  "tryAgain": "حاول مرة أخرى"
+  },
+  "succMessages":{
+     "profileUpdated": "تم تحديث الملف الشخصي بنجاح",
+  "solutionDeleted": "تم حذف الحل بنجاح",
+  "interestDeleted": "تم حذف الاهتمام بنجاح"
+  },
+ 
+  
+  "loadingStates":{
+    "loadingSolutions": "جاري تحميل الحلول...",
+  "loadingProfile": "جاري تحميل الملف الشخصي...",
+  "loadingSolutionDetails": "جاري تحميل تفاصيل الحل..."
+  },
+
+  
+
+  "validMessages":{
+    "emailRequired": "البريد الإلكتروني مطلوب",
+  "passwordRequired": "كلمة المرور مطلوبة",
+  "passwordTooShort": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+  "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
+  "nameRequired": "الاسم مطلوب",
+  "companyRequired": "اسم الشركة مطلوب",
+  "solutionNameRequired": "اسم الحل مطلوب",
+  "descriptionRequired": "الوصف مطلوب",
+  "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح",
+  "invalidUrl": "يرجى إدخال رابط صحيح"
+  },
+  
+  
+  "goalAgent":{
+     "goaiAgentTitle": "GOAI | رُوَّاد",
+  "goaiAgentSubtitle": "مساعدك الذكي لاستكشاف حلول الذكاء الاصطناعي وتحليلها",
+  "askGoai": "اسأل رُوَّاد",
+  "researchReports": "التقارير البحثية",
+  "usageStatus": "حالة الاستخدام",
+  "dataSources": "مصادر البيانات",
+  "platformSolutions": "حلول المنصة",
+  "saudiMarketInsights": "رؤية السوق السعودي",
+  "globalIndustryReports": "تقارير الصناعة العالمية",
+  "monthlyQuota": "يتم تجديد الحصة الشهرية في 1 من كل شهر",
+  "noReportsYet": "لا توجد تقارير بعد. اطلب تقريراً بحثياً.",
+  "generatedOn": "تم إنشاؤه في",
+  "download": "تحميل",
+  "typeYourMessage": "اكتب رسالتك هنا...",
+  "pressEnterToSend": "اضغط Enter للإرسال، Shift+Enter لسطر جديد",
+  "loadingPlatformData": "جاري تحميل بيانات المنصة..."
+
+  },
+  
+ 
+
+
+
+
+
+
+
+
+
   "breadcrumb": {
     "home": "الرئيسية",
     "dashboard": "لوحة التحكم"
