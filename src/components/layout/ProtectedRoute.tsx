@@ -7,7 +7,7 @@ import { AlertCircle } from 'lucide-react';
 import { ROUTES } from '../../utils/constants';
 
 const ProtectedRoute: React.FC = () => {
-  const { user, isLoading, isConfirmed } = useAuth();
+  const { user, isLoading, isConfirmed, refreshSession } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [showConfirmationRequired, setShowConfirmationRequired] = useState(false);
