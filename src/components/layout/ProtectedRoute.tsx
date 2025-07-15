@@ -11,7 +11,6 @@ const ProtectedRoute: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [showConfirmationRequired, setShowConfirmationRequired] = useState(false);
-  const navigate = useNavigate();
 
   // For debugging
   console.log('ProtectedRoute - User:', user?.email);
