@@ -10,6 +10,11 @@ const ProtectedRoute: React.FC = () => {
   const { user, isLoading, isConfirmed } = useAuth();
   const location = useLocation();
 
+  // For debugging
+  console.log('ProtectedRoute - User:', user?.email);
+  console.log('ProtectedRoute - isConfirmed:', isConfirmed);
+  console.log('ProtectedRoute - User email_confirmed:', user?.email_confirmed);
+
   // If auth is still loading, show loading state
   if (isLoading) {
     return (
@@ -28,7 +33,7 @@ const ProtectedRoute: React.FC = () => {
   }
 
   // If email is not confirmed, show confirmation required message
-  if (user && !isConfirmed) {
+  if (user && !isConfirmed && !user.email_confirmed) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-900 via-primary-800 to-primary-700 flex justify-center items-center p-4">
         <div className="bg-white p-6 rounded-xl shadow-2xl max-w-md w-full animate-fade-in-up">
@@ -53,9 +58,9 @@ const ProtectedRoute: React.FC = () => {
               onClick={async () => {
                 try {
                   await logout();
-                  window.location.href = '/login';
+                  navigate('/login');
                 } catch (error) {
-                  window.location.href = '/login';
+                  navigate('/login');
                 }
               }}
               className="w-full py-2 px-4 bg-white hover:bg-gray-100 text-primary-600 font-medium rounded-lg border border-primary-600 transition-colors"

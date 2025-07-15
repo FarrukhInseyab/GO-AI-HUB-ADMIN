@@ -35,13 +35,9 @@ const ConfirmEmailPage: React.FC = () => {
       try {
         await confirmEmail(cleanToken);
         setSuccess(true);
-        
-        console.log('Email confirmed successfully, redirecting to login');
-        
-        // Redirect to login after 5 seconds
-        setTimeout(() => {
-          navigate('/login?confirmed=true');
-        }, 5000);
+        console.log('Email confirmed successfully, redirecting to dashboard');
+        // Redirect to dashboard immediately
+        navigate('/');
       } catch (err: any) {
         console.error('Confirmation error:', err);
         setError(err.message || 'Failed to confirm email');
@@ -89,13 +85,13 @@ const ConfirmEmailPage: React.FC = () => {
                   <CheckCircle className="h-6 w-6 mr-2 text-green-500 flex-shrink-0" />
                   <h3 className="font-medium">Email Confirmed</h3>
                 </div>
-                <p className="text-sm">Your email has been successfully confirmed. You will be redirected to the login page in 5 seconds.</p>
+                <p className="text-sm">Your email has been successfully confirmed. You will be redirected to the dashboard.</p>
                 <div className="mt-4 text-center">
                   <Button
                     variant="primary"
-                    onClick={() => navigate('/login?confirmed=true')}
+                    onClick={() => navigate('/')}
                   >
-                    Go to Login Now
+                    Go to Dashboard Now
                   </Button>
                 </div>
               </div>
