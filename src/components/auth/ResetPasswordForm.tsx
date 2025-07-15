@@ -69,7 +69,7 @@ const ResetPasswordForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setSuccess(false);
+    setSuccess(false); // Reset success state
     
     if (!validatePassword(password)) {
       setError('Please fix the password requirements below');
@@ -87,14 +87,19 @@ const ResetPasswordForm: React.FC = () => {
         return;
       }
       
-      await resetPassword(password);
-      setSuccess(true);
-      console.log('Password reset successful with token:', token);
-      
-      // Redirect to login after 3 seconds
-      setTimeout(() => {
-        navigate('/login');
-      }, 5000);
+      try {
+        await resetPassword(password);
+        setSuccess(true);
+        console.log('Password reset successful with token:', token);
+        
+        // Redirect to login after 5 seconds
+        setTimeout(() => {
+          navigate('/login');
+        }, 5000);
+      } catch (resetError: any) {
+        console.error('Reset password error:', resetError);
+        setError(resetError.message || 'Failed to reset password');
+      }
     } catch (err: any) {
       console.error('Password reset error:', err);
       setError(err.message || 'Failed to reset password');

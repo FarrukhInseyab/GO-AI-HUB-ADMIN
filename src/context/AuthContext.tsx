@@ -338,7 +338,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const resetPassword = async (password: string): Promise<void> => {
   try {
     setIsLoading(true);
-    console.log('Attempting to update password');
+    console.log('Attempting to reset password');
 
     // Get the token from URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -348,7 +348,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw new Error('Reset token is missing');
     }
     
-    // Parse the token to get the email
+    // Parse the token to get the email and timestamp
     try {
       const decodedToken = atob(token);
       const [email] = decodedToken.split(':');
@@ -374,13 +374,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Reset token has expired');
       }
       
-      // Reset password using Supabase Auth API
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/login'
+      // Update password directly using updateUser API
+      const { error } = await supabase.auth.updateUser({
+        password: password
       });
-      
+
       if (error) {
-        console.error('Password reset API error:', error);
+        console.error('Password update error:', error);
         throw error;
       }
       
@@ -392,20 +392,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (tokenError) {
       console.error('Token parsing error:', tokenError);
       throw new Error('Invalid or expired reset token');
-    }
-    
-    if (user) {
-      const { error } = await supabase.auth.updateUser({ password });
-
-      if (error) {
-        console.error('Password update error:', error);
-        console.log('Simulating password update instead');
-      } else {
-        console.log('Password updated successfully through Supabase');
-      }
-    }
-    else {
-      throw new Error('No active user session for password update');
     }
   } catch (error) {
     console.error('Password update error:', error);
