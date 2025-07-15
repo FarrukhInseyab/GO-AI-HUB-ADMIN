@@ -19,16 +19,21 @@ const ConfirmEmailPage: React.FC = () => {
   useEffect(() => {
     const verifyToken = async () => {
       if (!token) {
-        console.log('No token found in URL');
+        console.log('No token found in URL parameters');
         setError('Invalid or missing confirmation token');
         setIsProcessing(false);
         return;
       }
 
-      console.log('Verifying token from URL:', token.substring(0, 5) + '...');
+      // Log the full token for debugging
+      console.log('Verifying token from URL:', token);
+      
+      // Make sure to trim any whitespace from the token
+      const cleanToken = token.trim();
+      console.log('Cleaned token:', cleanToken);
       
       try {
-        await confirmEmail(token);
+        await confirmEmail(cleanToken);
         setSuccess(true);
         
         console.log('Email confirmed successfully, redirecting to login');

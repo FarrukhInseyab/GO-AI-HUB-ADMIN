@@ -501,7 +501,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const confirmEmail = async (token: string): Promise<void> => {
     try {
       setIsLoading(true);
-      console.log('Confirming email with token:', token.substring(0, 5) + '...');
+      console.log('Confirming email with token:', token);
       
       
       if (!token) {
@@ -510,13 +510,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Find user with this token
       console.log('Looking up user with token in database');
+      
+      // First check if the token exists at all
+      const { count, error: countError } = await supabase
+        .from('users')
+        .select('*', { count: 'exact', head: true })
+        .eq('email_confirmation_token', token);
+        
+      console.log('Token count in database:', count, 'Error:', countError ? countError.message : 'None');
+      
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('*')
         .eq('email_confirmation_token', token)
         .single();
       
-      console.log('User lookup result:', userError ? 'Error' : 'Success', userData ? 'Data found' : 'No data');
+      console.log('User lookup result:', userError ? `Error: ${userError.message}` : 'Success', userData ? `Data found for: ${userData.email}` : 'No data');
       
       if (userError || !userData) {
         console.error('User lookup error or no data found:', userError);
@@ -526,7 +535,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Check if token is expired (24 hours)
       const confirmationSentAt = new Date(userData.confirmation_sent_at);
       const now = new Date();
-      const hoursSinceConfirmationSent = (now.getTime() - confirmationSentAt.getTime()) / (1000 * 60 * 60);
+      const hoursSinceConfirmationSent = confirmationSentAt ? (now.getTime() - confirmationSentAt.getTime()) / (1000 * 60 * 60) : 0;
       
       if (hoursSinceConfirmationSent > 24) {
         console.error('Token expired, hours since sent:', hoursSinceConfirmationSent);

@@ -114,9 +114,8 @@ export const isValidEmail = (email: string): boolean => {
 
 export const generateToken = (): string => {
   // Generate a random string for token
-  const randomPart = Math.random().toString(36).substring(2, 15);
-  const timestampPart = Date.now().toString(36);
-  return randomPart + timestampPart;
+  // Make it shorter and more reliable for database comparison
+  return Math.random().toString(36).substring(2, 20);
 };
 
 export const validatePassword = (password: string): { isValid: boolean; errors: string[] } => {
