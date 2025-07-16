@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { User } from '../types';
 import { supabase } from '../lib/supabase';
 import emailService from '../utils/emailService';
@@ -37,6 +37,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [resetPasswordToken, setResetPasswordToken] = useState<string | null>(null);
+  const hasRunRef = useRef(false);
+
+   useEffect(() => {
+    const run = async () => {
+      const token = new URLSearchParams(window.location.search).get('token');
+
+      if (!token || hasRunRef.current) return;
+      hasRunRef.current = true; // guard to prevent reruns
+
+      try {
+        await confirmEmail(token);
+      } catch (err) {
+        console.error('Confirmation error:', err);
+      }
+    };
+
+    run();
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -532,83 +550,159 @@ const login = async (
       throw error;
     }
   };
-  
+
   const confirmEmail = async (token: string): Promise<void> => {
-    try {
-      setIsLoading(true);
-      console.log('Confirming email with token:', token.substring(0, 5) + '...');
-      
-      
-      if (!token) {
-        throw new Error('Invalid confirmation token');
-      }
-      
-      // Find user with this token
-      console.log('Looking up user with token in database');
-      
-      // First check if token exists at all
-      const { count, error: countError } = await supabase
-        .from('users')
-        .select('*', { count: 'exact', head: true })
-        .eq('email_confirmation_token', token);
-        
-      console.log('Token exists in database?', countError ? `Error: ${countError.message}` : `Count: ${count}`);
-      
-      if (countError) {
-        console.error('Error checking token existence:', countError);
-      }
-      
-      // Now get the actual user data
-      let { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email_confirmation_token', token.trim())
-        .single();
-      
-      console.log('User lookup result:', userError ? `Error: ${userError.message}` : 'Success', userData ? `Data found for: ${userData.email}` : 'No data');
-      
-      if (count != 1) {
-        console.error('User lookup error or no data found:', userError);
-        throw new Error('Invalid or expired confirmation token');
-      }
-      
-      // Check if token is expired (24 hours)
-      const confirmationSentAt = new Date(userData.confirmation_sent_at);
-      const now = new Date();
-      const hoursSinceConfirmationSent = confirmationSentAt ? (now.getTime() - confirmationSentAt.getTime()) / (1000 * 60 * 60) : 0;
-      
-      if (hoursSinceConfirmationSent > 24) {
-        console.error('Token expired, hours since sent:', hoursSinceConfirmationSent);
-        throw new Error('Confirmation token has expired. Please request a new one.');
-      }
-      
-      // Update user as confirmed
-      console.log('Updating user as confirmed, ID:', userData.id);
-      const { error: updateError } = await supabase
-          .from('users')
-          .update({
-            email_confirmed: true,
-            email_confirmation_token: null
-          })
-          .eq('id', userData.id);
-      
-      if (updateError) {
-        console.error('Error updating user confirmation status:', updateError);
-        throw new Error('Failed to confirm email. Please try again.');
-      }
-      
-      console.log('Email confirmation successful, setting isConfirmed to true');
-      
-      setIsConfirmed(true);
-      
-      return;
-    } catch (error) {
-      console.error('Email confirmation error:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+  try {
+    debugger;
+    setIsLoading(true);
+    console.log('Confirming email with token:', token?.substring(0, 5) + '...');
+
+    if (!token || token.trim() === '') {
+      console.error('No token provided');
+      throw new Error('Invalid confirmation token');
     }
-  };
+
+    // Step 1: Check if token exists
+    console.log('Looking up user with token in database');
+
+    const { data: users, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email_confirmation_token', token.trim());
+
+    if (userError || !users || users.length === 0) {
+      console.error('User lookup error or no data found:', userError);
+      throw new Error('Invalid or expired confirmation token');
+    }
+
+    const userData = users[0];
+
+    console.log('User found for token:', userData.email);
+
+    // Step 2: Check if already confirmed
+    if (userData.email_confirmed) {
+      console.warn('User already confirmed');
+      setIsConfirmed(true);
+      return;
+    }
+
+    // Step 3: Check if token expired (older than 24 hours)
+    const confirmationSentAt = new Date(userData.confirmation_sent_at);
+    const now = new Date();
+    const hoursSinceSent = (now.getTime() - confirmationSentAt.getTime()) / (1000 * 60 * 60);
+
+    if (hoursSinceSent > 24) {
+      console.error('Token expired, hours since sent:', hoursSinceSent);
+      throw new Error('Confirmation token has expired. Please request a new one.');
+    }
+
+    // Step 4: Update user as confirmed
+    console.log('Updating user confirmation status...');
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({
+        email_confirmed: true,
+        email_confirmation_token: null
+      })
+      .eq('id', userData.id);
+
+    if (updateError) {
+      console.error('Error updating user confirmation status:', updateError);
+      throw new Error('Failed to confirm email. Please try again.');
+    }
+
+    console.log('Email confirmation successful');
+    setIsConfirmed(true);
+
+    // Step 5: Optional – Clean up the URL to remove the token
+    window.history.replaceState({}, document.title, '/');
+
+  } catch (error) {
+    console.error('Email confirmation error:', error);
+    throw error;
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  
+  // const confirmEmail = async (token: string): Promise<void> => {
+  //   try {
+  //     debugger;
+  //     setIsLoading(true);
+  //     console.log('Confirming email with token:', token.substring(0, 5) + '...');
+     
+     
+  //     if (!token) {
+  //       throw new Error('Invalid confirmation token');
+  //     }
+     
+  //     // Find user with this token
+  //     console.log('Looking up user with token in database');
+     
+  //     // First check if token exists at all
+  //     const { count, error: countError } = await supabase
+  //       .from('users')
+  //       .select('*', { count: 'exact', head: true })
+  //       .eq('email_confirmation_token', token);
+       
+  //     console.log('Token exists in database?', countError ? `Error: ${countError.message}` : `Count: ${count}`);
+     
+  //     if (countError) {
+  //       console.error('Error checking token existence:', countError);
+  //     }
+     
+  //     // Now get the actual user data
+  //     const { data: userData, error: userError } = await supabase
+  //       .from('users')
+  //       .select('*')
+  //       .eq('email_confirmation_token', token.trim())
+  //       .single();
+     
+  //     console.log('User lookup result:', userError ? `Error: ${userError.message}` : 'Success', userData ? `Data found for: ${userData.email}` : 'No data');
+     
+  //     if (userError || !userData) {
+  //       console.error('User lookup error or no data found:', userError);
+  //       throw new Error('Invalid or expired confirmation token');
+  //     }
+     
+  //     // Check if token is expired (24 hours)
+  //     const confirmationSentAt = new Date(userData.confirmation_sent_at);
+  //     const now = new Date();
+  //     const hoursSinceConfirmationSent = confirmationSentAt ? (now.getTime() - confirmationSentAt.getTime()) / (1000 * 60 * 60) : 0;
+     
+  //     if (hoursSinceConfirmationSent > 24) {
+  //       console.error('Token expired, hours since sent:', hoursSinceConfirmationSent);
+  //       throw new Error('Confirmation token has expired. Please request a new one.');
+  //     }
+     
+  //     // Update user as confirmed
+  //     console.log('Updating user as confirmed, ID:', userData.id);
+  //     const { error: updateError } = await supabase
+  //         .from('users')
+  //         .update({
+  //           email_confirmed: true,
+  //           email_confirmation_token: null
+  //         })
+  //         .eq('id', userData.id);
+     
+  //     if (updateError) {
+  //       console.error('Error updating user confirmation status:', updateError);
+  //       throw new Error('Failed to confirm email. Please try again.');
+  //     }
+     
+  //     console.log('Email confirmation successful, setting isConfirmed to true');
+     
+  //     setIsConfirmed(true);
+     
+  //     return;
+  //   } catch (error) {
+  //     console.error('Email confirmation error:', error);
+  //     throw error;
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const logout = async () => {
     try {
