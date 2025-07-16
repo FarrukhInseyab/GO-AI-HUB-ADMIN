@@ -19,6 +19,7 @@ const ProtectedRoute: React.FC = () => {
   
   // Check if we need to show the confirmation required message
   useEffect(() => {
+    debugger;
     if (user) {
       // If user exists but is not confirmed, show confirmation required
       const needsConfirmation = !isConfirmed && !user.email_confirmed;

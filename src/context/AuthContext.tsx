@@ -4,11 +4,16 @@ import { supabase } from '../lib/supabase';
 import emailService from '../utils/emailService';
 import { generateToken } from '../utils/helpers';
 
+ type LoginResult = {
+  user: any; // you can replace `any` with `User` if you have the User type
+  email_confirmed: boolean;
+};
+
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isConfirmed: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<LoginResult >;
   signup: (name: string, email: string, password: string, country?: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
@@ -121,7 +126,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Fetch user profile from users table
       const profilePromise = supabase
         .from('users')
-        .select('id, user_id, email, contact_name, company_name, country, role, created_at, updated_at')
+        .select('id, user_id, email, contact_name, company_name, country, role, created_at, updated_at,email_confirmed')
         .eq('user_id', userId)
         .single();
         
@@ -160,7 +165,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           country: profile.country,
           role: profile.role,
           created_at: profile.created_at,
-          updated_at: profile.updated_at
+          updated_at: profile.updated_at,
+          email_confirmed:profile.email_confirmed
         };
         setUser(userData);
       } else {
@@ -198,7 +204,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const insertPromise = supabase
         .from('users')
         .insert([profileData])
-        .select('id, user_id, email, contact_name, company_name, country, role, created_at, updated_at')
+        .select('id, user_id, email, contact_name, company_name, country, role, created_at, updated_at,email_confirmed')
         .single();
         
       const insertTimeoutPromise = new Promise((_, reject) => 
@@ -220,7 +226,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           country: newProfile.country,
           role: newProfile.role,
           created_at: newProfile.created_at,
-          updated_at: newProfile.updated_at
+          updated_at: newProfile.updated_at,
+          email_confirmed:newProfile.email_confirmed
         };
         setUser(userData);
       }
@@ -249,55 +256,74 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = async (email: string, password: string) => {
-    try {
-      const loginPromise = supabase.auth.signInWithPassword({
-        email: email.toLowerCase().trim(), 
-        password: password
-      });
-      
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Login timeout')), 15000)
-      );
-      
-      const { data, error } = await Promise.race([
-        loginPromise,
-        timeoutPromise
-      ]) as any;
 
-      if (error) {
-        throw new Error('Invalid email or password');
-      }
-      
-      // Check if user's email is confirmed
-      if (data.user) {
-        const { data: userData } = await supabase
-          .from('users')
-          .select('email_confirmed')
-          .eq('user_id', data.user.id)
-          .single();
-      }
 
-      if (data.user) {
-        await fetchUserProfile(data.user.id, data.user.email);
-      }
-      
-      // Send confirmation email for new signups
-      if (data.user && !data.session) {
-        // Generate a confirmation token
-        const confirmationToken = btoa(data.user.id + ':' + new Date().getTime());
-        
-        // Send confirmation email
-        await emailService.sendSignupConfirmationEmail(
-          data.user.email,
-          data.user.user_metadata?.name || data.user.email.split('@')[0],
-          confirmationToken
-        );
-      }
-    } catch (error) {
-      throw error;
+const login = async (
+  email: string,
+  password: string
+): Promise<LoginResult> => {
+  try {
+    debugger;
+    const loginPromise = supabase.auth.signInWithPassword({
+      email: email.toLowerCase().trim(),
+      password: password
+    });
+
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Login timeout')), 15000)
+    );
+
+    const { data, error } = await Promise.race([
+      loginPromise,
+      timeoutPromise
+    ]) as any;
+
+    if (error) {
+      throw new Error('Invalid email or password');
     }
-  };
+
+    if (!data?.user) {
+      // If user is missing, explicitly throw error
+      throw new Error('No user returned from login');
+    }
+
+    let email_confirmed = false;
+
+    const { data: userData } = await supabase
+      .from('users')
+      .select('email_confirmed')
+      .eq('user_id', data.user.id)
+      .single();
+
+    email_confirmed = userData?.email_confirmed ?? false;
+
+    await fetchUserProfile(data.user.id, data.user.email);
+
+    if (!data.session) {
+      const confirmationToken = btoa(data.user.id + ':' + new Date().getTime());
+
+      await emailService.sendSignupConfirmationEmail(
+        data.user.email,
+        data.user.user_metadata?.name || data.user.email.split('@')[0],
+        confirmationToken
+      );
+    }
+
+    return {
+      user: data.user,
+      email_confirmed
+    };
+
+  } catch (error) {
+    // Still propagate error for caller to handle
+    throw error;
+  }
+};
+
+
+
+
+
 
   const forgotPassword = async (email: string): Promise<void> => {
   try {
@@ -541,7 +567,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       console.log('User lookup result:', userError ? `Error: ${userError.message}` : 'Success', userData ? `Data found for: ${userData.email}` : 'No data');
       
-      if (userError || !userData) {
+      if (count != 1) {
         console.error('User lookup error or no data found:', userError);
         throw new Error('Invalid or expired confirmation token');
       }

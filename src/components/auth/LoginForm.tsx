@@ -7,6 +7,12 @@ import Button from '../ui/Button';
 import Input from '../ui/Input';
 import LanguageToggle from '../ui/LanguageToggle';
 import { Card, CardContent, CardHeader, CardFooter } from '../ui/Card';
+import { User } from '@supabase/supabase-js';
+
+type LoginResult = {
+  user: User;
+  email_confirmed: boolean;
+};
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -44,11 +50,9 @@ const LoginForm: React.FC = () => {
     }
     
     try {
-      await login(email, password);
-      
-      // After successful login, check if user is confirmed
-      if (user && user.email_confirmed) {
-        navigate('/');
+    const response : LoginResult= await login(email, password);
+   if (response?.user && response?.email_confirmed) {
+           navigate('/');
       } else {
         setError('Your email is not confirmed. Please check your inbox for the confirmation link.');
       }
