@@ -53,58 +53,82 @@ export const emailTemplates = {
     `
   }),
 
-  technicalApproval: (name: string, solutionName: string, solutionLink: string, feedback: string) => ({
-    subject: 'GO AI HUB - Technical Approval for Your Solution',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <h1 style="color: #00afaf;">Technical Approval</h1>
-        </div>
-        <p>Hello ${name},</p>
-        <p>We're pleased to inform you that your solution <strong>${solutionName}</strong> has received technical approval from our evaluation team.</p>
-        <p>Technical Feedback:</p>
-        <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #00afaf; margin: 20px 0;">
-          <p style="margin: 0;">${feedback || 'Your solution meets our technical requirements.'}</p>
-        </div>
-        <p>You can view your solution status by clicking the button below:</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${solutionLink}" style="background-color: #00afaf; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">View Solution</a>
-        </div>
-        <p>If the button doesn't work, you can also copy and paste the following link into your browser:</p>
-        <p style="word-break: break-all; color: #666;">${solutionLink}</p>
-        <p>Your solution is now pending business approval. We'll notify you once the business review is complete.</p>
+  technicalApproval: (vendorName:string, solutionName:string, solutionLink:string,feedback:string) => ({
+  subject: 'Congratulations! Your AI Solution Has Been Accepted',
+  html: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <h1 style="color: #00afaf;">GO AI HUB - Solution Accepted</h1>
+      </div>
+      <p>Dear ${vendorName},</p>
+      <p>We are pleased to inform you that your submitted AI solution, <strong>${solutionName}</strong>, has been successfully accepted on GO AI HUB.</p>
+      <p>Please visit: <a href="${solutionLink}" style="color: #00afaf;">${solutionLink}</a></p>
+      <p>You may now proceed with the next steps for onboarding and enablement. Our team will be in touch with you shortly for any required formalities.</p>
+      <p>Thank you for your innovative contribution.</p>
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
+        <p>Best regards,<br>
+        GO AI HUB Team<br>
+        Email: <a href="mailto:ai.support@go.com.sa">ai.support@go.com.sa</a><br>
+        Website: <a href="https://www.goaihub.ai" target="_blank">www.goaihub.ai</a><br>
+        Working Hours: Sunday–Thursday, 9:00 AM – 5:00 PM (KSA Time)</p>
+      </div>
+      <hr style="margin: 40px 0; border: none; border-top: 1px solid #e0e0e0;">
+      <div dir="rtl" style="text-align: right; font-family: Arial, sans-serif;">
+        <h1 style="color: #00afaf;">تهانينا! تم قبول حل الذكاء الاصطناعي الخاص بك</h1>
+        <p>عزيزي/عزيزتي ${vendorName}،</p>
+        <p>يسعدنا إبلاغك بأنه قد تم قبول الحل المقدم، <strong>${solutionName}</strong>، على منصة GO AI HUB.</p>
+        <p>رابط الحل على المنصة: <a href="${solutionLink}" style="color: #00afaf;">${solutionLink}</a></p>
+        <p>سيقوم فريقنا بالتواصل معك قريبًا لاستكمال الإجراءات اللازمة.</p>
+        <p>شكرًا لمساهمتك المتميزة.</p>
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} GO AI HUB. All rights reserved.</p>
+          <p>مع أطيب التحيات،<br>
+          فريق GO AI HUB<br>
+          البريد الإلكتروني: <a href="mailto:ai.support@go.com.sa">ai.support@go.com.sa</a><br>
+          الموقع الإلكتروني: <a href="https://www.goaihub.ai" target="_blank">www.goaihub.ai</a><br>
+          ساعات العمل: من الأحد إلى الخميس، من الساعة 9:00 صباحاً حتى 5:00 مساءً (بتوقيت السعودية)</p>
         </div>
       </div>
-    `
-  }),
+    </div>
+  `
+}),
 
-  businessApproval: (name: string, solutionName: string, solutionLink: string, feedback: string) => ({
-    subject: 'GO AI HUB - Business Approval for Your Solution',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <h1 style="color: #00afaf;">Business Approval</h1>
-        </div>
-        <p>Hello ${name},</p>
-        <p>We're pleased to inform you that your solution <strong>${solutionName}</strong> has received business approval from our evaluation team.</p>
-        <p>Business Feedback:</p>
-        <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #00afaf; margin: 20px 0;">
-          <p style="margin: 0;">${feedback || 'Your solution meets our business requirements.'}</p>
-        </div>
-        <p>You can view your solution status by clicking the button below:</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${solutionLink}" style="background-color: #00afaf; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">View Solution</a>
-        </div>
-        <p>If the button doesn't work, you can also copy and paste the following link into your browser:</p>
-        <p style="word-break: break-all; color: #666;">${solutionLink}</p>
-        <p>Congratulations! Your solution is now fully approved and will be visible in the GO AI HUB marketplace.</p>
+  businessApproval: (vendorName: string, solutionName: string, solutionLink: string, feedback: string) => ({
+    subject: 'Congratulations! Your AI Solution Has Been Accepted',
+  html: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <h1 style="color: #00afaf;">GO AI HUB - Solution Accepted</h1>
+      </div>
+      <p>Dear ${vendorName},</p>
+      <p>We are pleased to inform you that your submitted AI solution, <strong>${solutionName}</strong>, has been successfully accepted on GO AI HUB.</p>
+      <p>Please visit: <a href="${solutionLink}" style="color: #00afaf;">${solutionLink}</a></p>
+      <p>You may now proceed with the next steps for onboarding and enablement. Our team will be in touch with you shortly for any required formalities.</p>
+      <p>Thank you for your innovative contribution.</p>
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
+        <p>Best regards,<br>
+        GO AI HUB Team<br>
+        Email: <a href="mailto:ai.support@go.com.sa">ai.support@go.com.sa</a><br>
+        Website: <a href="https://www.goaihub.ai" target="_blank">www.goaihub.ai</a><br>
+        Working Hours: Sunday–Thursday, 9:00 AM – 5:00 PM (KSA Time)</p>
+      </div>
+      <hr style="margin: 40px 0; border: none; border-top: 1px solid #e0e0e0;">
+      <div dir="rtl" style="text-align: right; font-family: Arial, sans-serif;">
+        <h1 style="color: #00afaf;">تهانينا! تم قبول حل الذكاء الاصطناعي الخاص بك</h1>
+        <p>عزيزي/عزيزتي ${vendorName}،</p>
+        <p>يسعدنا إبلاغك بأنه قد تم قبول الحل المقدم، <strong>${solutionName}</strong>، على منصة GO AI HUB.</p>
+        <p>رابط الحل على المنصة: <a href="${solutionLink}" style="color: #00afaf;">${solutionLink}</a></p>
+        <p>سيقوم فريقنا بالتواصل معك قريبًا لاستكمال الإجراءات اللازمة.</p>
+        <p>شكرًا لمساهمتك المتميزة.</p>
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} GO AI HUB. All rights reserved.</p>
+          <p>مع أطيب التحيات،<br>
+          فريق GO AI HUB<br>
+          البريد الإلكتروني: <a href="mailto:ai.support@go.com.sa">ai.support@go.com.sa</a><br>
+          الموقع الإلكتروني: <a href="https://www.goaihub.ai" target="_blank">www.goaihub.ai</a><br>
+          ساعات العمل: من الأحد إلى الخميس، من الساعة 9:00 صباحاً حتى 5:00 مساءً (بتوقيت السعودية)</p>
         </div>
       </div>
-    `
+    </div>
+  `
   }),
 
   solutionCancellation: (name: string, solutionName: string, reason: string) => ({
