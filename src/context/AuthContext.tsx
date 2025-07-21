@@ -668,7 +668,9 @@ const resetPassword = async function resetPassword(token: string,newPassword: st
         if (!emailSent) {
           throw new Error('Failed to send confirmation email. Please try again.');
         } else {
-          setSuccess('Please check your email to confirm your account');
+          console.warn('Please check your email to confirm your account');
+          setIsConfirmed(true);
+          
           return;
         }
       } catch (emailError) {
