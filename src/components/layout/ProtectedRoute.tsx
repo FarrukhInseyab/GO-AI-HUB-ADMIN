@@ -18,20 +18,20 @@ const ProtectedRoute: React.FC = () => {
   console.log('ProtectedRoute - User email_confirmed:', user?.email_confirmed);
   
   // Check if we need to show the confirmation required message
-  useEffect(() => {
-    debugger;
-    if (user) {
-      // If user exists but is not confirmed, show confirmation required
-      const needsConfirmation = !isConfirmed && !user.email_confirmed;
-      setShowConfirmationRequired(needsConfirmation);
+  // useEffect(() => {
+  //   debugger;
+  //   if (user) {
+  //     // If user exists but is not confirmed, show confirmation required
+  //     const needsConfirmation = !isConfirmed && !user.email_confirmed;
+  //     setShowConfirmationRequired(needsConfirmation);
       
-      // If user is confirmed in database but not in state, force a refresh
-      if (user.email_confirmed && !isConfirmed) {
-        console.log('User is confirmed in database but not in state, forcing refresh');
-        refreshSession();
-      }
-    }
-  }, [user, isConfirmed, refreshSession]);
+  //     // If user is confirmed in database but not in state, force a refresh
+  //     if (user.email_confirmed && !isConfirmed) {
+  //       console.log('User is confirmed in database but not in state, forcing refresh');
+  //       refreshSession();
+  //     }
+  //   }
+  // }, [user, isConfirmed, refreshSession]);
 
   // If auth is still loading, show loading state
   if (isLoading) {

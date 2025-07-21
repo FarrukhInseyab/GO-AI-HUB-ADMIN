@@ -151,12 +151,12 @@ const LoginForm: React.FC = () => {
               {t('navigation.signup')}
             </Link>
           </p>
-          <Link 
+          {/* <Link 
             to="/forgot-password" 
             className="text-sm text-primary-600 hover:text-primary-800 font-medium transition-colors duration-200"
           >
             Forgot your password?
-          </Link>
+          </Link> */}
         </div>
       </CardFooter>
     </Card>
