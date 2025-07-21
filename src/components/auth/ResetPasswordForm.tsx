@@ -88,7 +88,8 @@ const ResetPasswordForm: React.FC = () => {
       }
       
       try {
-        await resetPassword(password);
+         //const token = searchParams.get('token');
+        await resetPassword(token,password);
         setSuccess(true);
         console.log('Password reset successful with token:', token);
         

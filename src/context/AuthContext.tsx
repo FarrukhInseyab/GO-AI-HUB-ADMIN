@@ -1,8 +1,18 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { User } from '../types';
 import { supabase } from '../lib/supabase';
-import emailService from '../utils/emailService';
+import emailService, { sendPasswordResetEmail } from '../utils/emailService';
+// import { generateToken } from '../utils/helpers';
+import { validateToken } from '../utils/security';
+
+import { createClient } from '@supabase/supabase-js';
 import { generateToken } from '../utils/helpers';
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SERVICE_ROLE_KEY = import.meta.env.VITE_SERVICE_ROLE_KEY;
+
+// ✅ Client for public operations
+export const supabasesAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
  type LoginResult = {
   user: any; // you can replace `any` with `User` if you have the User type
@@ -17,8 +27,8 @@ interface AuthContextType {
   signup: (name: string, email: string, password: string, country?: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshSession: () => Promise<void>;
-  forgotPassword: (email: string) => Promise<void>;
-  resetPassword: (password: string) => Promise<void>;
+  forgotPassword: (email: string) => Promise<boolean>;
+  resetPassword: (token:string,password: string) => Promise<boolean>;
   confirmEmail: (token: string) => Promise<void>;
 };
 
@@ -343,124 +353,243 @@ const login = async (
 
 
 
-  const forgotPassword = async (email: string): Promise<void> => {
+  const forgotPassword = async (email: string): Promise<boolean> => {
   try {
     setIsLoading(true);
-    console.log('Initiating password reset for:', email.trim().toLowerCase());
+    if (!email) {
+      throw new Error('Email is required');
+    }
 
+    debugger;
+    
+    const sanitizedEmail = email.toLowerCase().trim();
+    
+    // Check if user exists
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('contact_name')
-      .eq('email', email.trim().toLowerCase())
+      .select('id, contact_name')
+      .eq('email', sanitizedEmail)
       .single();
-
-    if (userError && !userError.message.includes('No rows found')) {
-      console.error('Error fetching user data:', userError);
+      
+    if (userError || !userData) {
+      console.error('User not found for password reset:', userError);
+      // Don't reveal if user exists or not for security
+      return true;
     }
+    
+    // Generate reset token
+    const resetToken = generateToken();
+    
+    // Store token in database
+    const { data, error } = await supabase
+        .from('users')
+        .update({
+          email_confirmation_token: resetToken,
+          confirmation_sent_at: new Date().toISOString()
+        })
+        .eq('email', sanitizedEmail)
+        .select();
 
-    const resetToken = btoa(email.trim().toLowerCase() + ':' + new Date().getTime());
-
-    const tokenData = {
-      token: resetToken,
-      expires: new Date().getTime() + 60 * 60 * 1000, // 1 hour
-    };
-    localStorage.setItem(
-      'passwordResetToken:' + email.trim().toLowerCase(),
-      JSON.stringify(tokenData)
+    console.log("UPDATE ERROR:", error);
+    console.log("UPDATE RESULT:", data);
+      
+    if (!data) {
+      console.error('Error updating user with reset token:', data);
+      throw new Error('Failed to process password reset request');
+    }
+    
+    // Send password reset email
+    await sendPasswordResetEmail(
+      sanitizedEmail, 
+      userData.contact_name || 'User', 
+      resetToken
     );
-
-    try {
-      const emailSent = await emailService.sendPasswordResetEmail(
-        email.trim().toLowerCase(),
-        userData?.contact_name || email.trim().toLowerCase().split('@')[0],
-        resetToken
-      );
-
-      console.log('Password reset email sent:', emailSent);
-
-      if (!emailSent) {
-        throw new Error('Failed to send recovery email');
-      }
-
-      return; // Just return void as the function signature indicates
-    } catch (emailError) {
-      console.error('Error sending password reset email:', emailError);
-      throw emailError;
-    }
+    
+    return true;
   } catch (error) {
-    console.error('Password reset error:', error);
+    console.error('Error in requestPasswordReset:', error);
+    setIsLoading(false)
     throw error;
-  } finally {
-    setIsLoading(false);
+  }finally{
+    setIsLoading(false)
   }
 };
 
 
-  const resetPassword = async (password: string): Promise<void> => {
+
+const resetPassword = async function resetPassword(token: string,newPassword: string): Promise<boolean> {
+  debugger;
   try {
     setIsLoading(true);
-    console.log('Attempting to reset password');
+    // console.log('Attempting to reset password');
 
-    // Get the token from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-    
-    if (!token) {
-      throw new Error('Reset token is missing');
-    }
-    
-    // Parse the token to get the email and timestamp
-    try {
-      const decodedToken = atob(token);
-      const [email] = decodedToken.split(':');
-      
-      if (!email) {
-        throw new Error('Invalid reset token format');
-      }
-      
-      // Verify token from localStorage
-      const storedTokenData = localStorage.getItem('passwordResetToken:' + email);
-      if (!storedTokenData) {
-        throw new Error('Reset token has expired or is invalid');
-      }
-      
-      const { token: storedToken, expires } = JSON.parse(storedTokenData);
-      
-      if (storedToken !== token) {
-        throw new Error('Invalid reset token');
-      }
-      
-      if (expires < new Date().getTime()) {
-        localStorage.removeItem('passwordResetToken:' + email);
-        throw new Error('Reset token has expired');
-      }
-      
-      // Update password directly using updateUser API
-      const { error } = await supabase.auth.updateUser({
-        password: password
-      });
+    // // Get the token from URL
+    // const urlParams = new URLSearchParams(window.location.search);
+    // const token = urlParams.get('token');
 
-      if (error) {
-        console.error('Password update error:', error);
-        throw error;
-      }
-      
-      // Clean up token
-      localStorage.removeItem('passwordResetToken:' + email);
-      
-      console.log('Password reset successful');
-      return;
-    } catch (tokenError) {
-      console.error('Token parsing error:', tokenError);
-      throw new Error('Invalid or expired reset token');
+
+    if (!token || !newPassword) {
+      throw new Error("Token and new password are required");
     }
+
+    // if (!validateToken(token)) {
+    //   throw new Error("Invalid token format");
+    // }
+
+    if (newPassword.length < 6) {
+      throw new Error("Password must be at least 6 characters long");
+    }
+
+    console.log("🔐 Attempting to reset password with token:", token.substring(0, 5) + "...");
+
+    // 1️⃣ Validate token in custom users table
+    const { data: user, error: tokenError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email_confirmation_token", token.trim())
+      .maybeSingle();
+
+    if (tokenError || !user) {
+      console.error("❌ Token validation failed:", tokenError);
+      throw new Error("Invalid or expired token");
+    }
+
+    console.log("✅ Token found for user:", user.email);
+
+    // Check token expiry (24 hours)
+    const tokenDate = new Date(user.confirmation_sent_at);
+    const now = new Date();
+    const hoursDiff = (now.getTime() - tokenDate.getTime()) / (1000 * 60 * 60);
+
+    if (hoursDiff > 24) {
+      console.error("⏳ Token expired. Hours since creation:", hoursDiff);
+      throw new Error("Token has expired. Please request a new password reset.");
+    }
+
+    console.log("✅ Token is valid and not expired");
+
+    // 2️⃣ Fetch Supabase Auth user by email
+    const { data: authUsersData, error: authError } = await supabasesAdmin.auth.admin.listUsers({
+      email: user.email
+    });
+
+    if (authError) {
+      console.error("❌ Error fetching auth user by email:", authError);
+      throw new Error("Failed to find user in Supabase Auth");
+    }
+
+    if (!authUsersData?.users?.length) {
+      console.error("❌ No Supabase Auth user found for email:", user.email);
+      throw new Error("User not found in Supabase Auth");
+    }
+
+    const authUser = authUsersData.users[0];
+    console.log("✅ Supabase Auth user found. ID:", authUser.id);
+
+    // 3️⃣ Update password in Supabase Auth
+    const { error: adminError } = await supabasesAdmin.auth.admin.updateUserById(authUser.id, {
+      password: newPassword
+    });
+
+    if (adminError) {
+      console.error("❌ Admin API error updating password:", adminError);
+      throw new Error("Failed to update password");
+    }
+
+    console.log("✅ Password updated successfully in Supabase Auth");
+
+    // 4️⃣ Clear token in custom users table
+    const { error: clearTokenError } = await supabase
+      .from("users")
+      .update({ email_confirmation_token: null, confirmation_sent_at: null })
+      .eq("id", user.id);
+
+    if (clearTokenError) {
+      console.error("⚠️ Error clearing token:", clearTokenError);
+      // Don’t throw here; password was already updated
+    }
+
+    console.log("🎉 Password reset flow completed successfully");
+    return true;
   } catch (error) {
-    console.error('Password update error:', error);
+    console.error("❌ Error in resetPassword:", error);
+    setIsLoading(false)
     throw error;
-  } finally {
-    setIsLoading(false);
+  }finally{
+    setIsLoading(false)
   }
-};
+}
+
+
+
+
+
+
+//   const resetPassword = async (password: string): Promise<void> => {
+//   try {
+//     setIsLoading(true);
+//     console.log('Attempting to reset password');
+
+//     // Get the token from URL
+//     const urlParams = new URLSearchParams(window.location.search);
+//     const token = urlParams.get('token');
+    
+//     if (!token) {
+//       throw new Error('Reset token is missing');
+//     }
+    
+//     // Parse the token to get the email and timestamp
+//     try {
+//       const decodedToken = atob(token);
+//       const [email] = decodedToken.split(':');
+      
+//       if (!email) {
+//         throw new Error('Invalid reset token format');
+//       }
+      
+//       // Verify token from localStorage
+//       const storedTokenData = localStorage.getItem('passwordResetToken:' + email);
+//       if (!storedTokenData) {
+//         throw new Error('Reset token has expired or is invalid');
+//       }
+      
+//       const { token: storedToken, expires } = JSON.parse(storedTokenData);
+      
+//       if (storedToken !== token) {
+//         throw new Error('Invalid reset token');
+//       }
+      
+//       if (expires < new Date().getTime()) {
+//         localStorage.removeItem('passwordResetToken:' + email);
+//         throw new Error('Reset token has expired');
+//       }
+      
+//       // Update password directly using updateUser API
+//       const { error } = await supabase.auth.updateUser({
+//         password: password
+//       });
+
+//       if (error) {
+//         console.error('Password update error:', error);
+//         throw error;
+//       }
+      
+//       // Clean up token
+//       localStorage.removeItem('passwordResetToken:' + email);
+      
+//       console.log('Password reset successful');
+//       return;
+//     } catch (tokenError) {
+//       console.error('Token parsing error:', tokenError);
+//       throw new Error('Invalid or expired reset token');
+//     }
+//   } catch (error) {
+//     console.error('Password update error:', error);
+//     throw error;
+//   } finally {
+//     setIsLoading(false);
+//   }
+// };
 
 
   const signup = async (name: string, email: string, password: string, country: string = 'Saudi Arabia') => {

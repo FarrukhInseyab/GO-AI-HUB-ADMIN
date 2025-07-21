@@ -37,12 +37,12 @@ const SubmissionCard: React.FC<SubmissionCardProps> = ({ solution }) => {
       setInterestCount(interests.length);
 
       // Calculate average response time
-      const respondedInterests = interests.filter(interest => 
+      const respondedInterests = interests.filter((interest: { initiated_at: any; created_at: any; }) => 
         interest.initiated_at && interest.created_at
       );
 
       if (respondedInterests.length > 0) {
-        const totalResponseTime = respondedInterests.reduce((sum, interest) => {
+        const totalResponseTime = respondedInterests.reduce((sum: number, interest: { created_at: string | number | Date; initiated_at: string | number | Date; }) => {
           const createdAt = new Date(interest.created_at);
           const initiatedAt = new Date(interest.initiated_at);
           const responseTimeHours = (initiatedAt.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
