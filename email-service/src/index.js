@@ -36,53 +36,86 @@ transporter.verify((error) => {
 
 // Email templates
 const emailTemplates = {
-  signupConfirmation: (name, confirmationLink) => ({
-    subject: 'Welcome to GO AI HUB - Confirm Your Account',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <h1 style="color: #00afaf;">Welcome to GO AI HUB!</h1>
-        </div>
-        <p>Hello ${name},</p>
-        <p>Thank you for signing up for GO AI HUB. We're excited to have you join our platform.</p>
-        <p>Please confirm your email address by clicking the button below:</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${confirmationLink}" style="background-color: #00afaf; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Confirm Email</a>
-        </div>
-        <p>If the button doesn't work, you can also copy and paste the following link into your browser:</p>
-        <p style="word-break: break-all; color: #666;">${confirmationLink}</p>
-        <p>This link will expire in 24 hours.</p>
-        <p>If you didn't create an account, you can safely ignore this email.</p>
+  signupConfirmation: (vendorName, loginUrl) => ({
+  subject: 'Welcome to GO AI HUB – Vendor Registration Successful',
+  html: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <h1 style="color: #00afaf;">Welcome to GO AI HUB!</h1>
+      </div>
+      <p>Dear ${vendorName},</p>
+      <p>Thank you for registering with GO AI HUB. Your vendor profile has been successfully created. You can now submit your AI solutions and explore collaboration opportunities within our ecosystem.</p>
+      <p>To log in, please visit: <a href="${loginUrl}" style="color: #00afaf;">${loginUrl}</a></p>
+      <p>If you have any questions, feel free to contact us at <a href="mailto:info@go.com.sa">info@go.com.sa</a>.</p>
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
+        <p>Best regards,<br>
+        GO AI HUB Team<br>
+        Email: <a href="mailto:ai.support@go.com.sa">ai.support@go.com.sa</a><br>
+        Website: <a href="https://www.goaihub.ai" target="_blank">www.goaihub.ai</a><br>
+        Working Hours: Sunday–Thursday, 9:00 AM – 5:00 PM (KSA Time)</p>
+      </div>
+      <hr style="margin: 40px 0; border: none; border-top: 1px solid #e0e0e0;">
+      <div dir="rtl" style="text-align: right; font-family: Arial, sans-serif;">
+        <h1 style="color: #00afaf;">مرحباً بك في GO AI HUB!</h1>
+        <p>عزيزي/عزيزتي ${vendorName}،</p>
+        <p>شكرًا لتسجيلك في منصة GO AI HUB. تم إنشاء ملفك كمورد بنجاح. يمكنك الآن تقديم حلول الذكاء الاصطناعي الخاصة بك واستكشاف فرص التعاون داخل منظومتنا.</p>
+        <p>للدخول، يرجى زيارة: <a href="${loginUrl}" style="color: #00afaf;">${loginUrl}</a></p>
+        <p>لأي استفسار، يمكنك التواصل معنا عبر البريد التالي: <a href="mailto:info@goaihub.com">info@goaihub.com</a></p>
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} GO AI HUB. All rights reserved.</p>
+          <p>مع أطيب التحيات،<br>
+          فريق GO AI HUB<br>
+          البريد الإلكتروني: <a href="mailto:ai.support@go.com.sa">ai.support@go.com.sa</a><br>
+          الموقع الإلكتروني: <a href="https://www.goaihub.ai" target="_blank">www.goaihub.ai</a><br>
+          ساعات العمل: الأحد–الخميس، 9:00 صباحًا – 5:00 مساءً (بتوقيت السعودية)</p>
         </div>
       </div>
-    `
-  }),
+    </div>
+  `
+}),
   
-  passwordReset: (name, resetLink) => ({
-    subject: 'GO AI HUB - Password Reset Request',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <h1 style="color: #00afaf;">Password Reset</h1>
-        </div>
-        <p>Hello ${name},</p>
-        <p>We received a request to reset your password for your GO AI HUB account.</p>
-        <p>Click the button below to reset your password:</p>
+  passwordReset: (userName, resetLink) => ({
+  subject: 'Password Reset – GO AI HUB',
+  html: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <h1 style="color: #00afaf;">GO AI HUB - Password Reset</h1>
+      </div>
+      <p>Dear ${userName},</p>
+      <p>We received a request to reset your password for your GO AI HUB account.</p>
+      <p>To reset your password, please click the link below:</p>
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${resetLink}" style="background-color: #00afaf; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Reset Password</a>
+      </div>
+      <p>If you did not request a password reset, please ignore this message or contact our support team.</p>
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
+        <p>Best regards,<br>
+        GO AI HUB Team<br>
+        Email: <a href="mailto:ai.support@go.com.sa">ai.support@go.com.sa</a><br>
+        Website: <a href="https://www.goaihub.ai" target="_blank">www.goaihub.ai</a><br>
+        Working Hours: Sunday–Thursday, 9:00 AM – 5:00 PM (KSA Time)</p>
+      </div>
+      <hr style="margin: 40px 0; border: none; border-top: 1px solid #e0e0e0;">
+      <div dir="rtl" style="text-align: right; font-family: Arial, sans-serif;">
+        <h1 style="color: #00afaf;">إعادة تعيين كلمة المرور - GO AI HUB</h1>
+        <p>عزيزي/عزيزتي ${userName}،</p>
+        <p>لقد تلقينا طلبًا لإعادة تعيين كلمة المرور الخاصة بحسابك على GO AI HUB.</p>
+        <p>لإعادة تعيين كلمة المرور، يرجى الضغط على الرابط التالي:</p>
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${resetLink}" style="background-color: #00afaf; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">Reset Password</a>
+          <a href="${resetLink}" style="background-color: #00afaf; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">إعادة تعيين كلمة المرور</a>
         </div>
-        <p>If the button doesn't work, you can also copy and paste the following link into your browser:</p>
-        <p style="word-break: break-all; color: #666;">${resetLink}</p>
-        <p>This link will expire in 1 hour.</p>
-        <p>If you didn't request a password reset, you can safely ignore this email.</p>
+        <p>إذا لم تقم بطلب إعادة تعيين كلمة المرور، يرجى تجاهل هذه الرسالة أو التواصل معنا عبر الدعم الفني.</p>
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; color: #666; font-size: 12px;">
-          <p>© ${new Date().getFullYear()} GO AI HUB. All rights reserved.</p>
+          <p>مع أطيب التحيات،<br>
+          فريق GO AI HUB<br>
+          البريد الإلكتروني: <a href="mailto:ai.support@go.com.sa">ai.support@go.com.sa</a><br>
+          الموقع الإلكتروني: <a href="https://www.goaihub.ai" target="_blank">www.goaihub.ai</a><br>
+          ساعات العمل: من الأحد إلى الخميس، من الساعة 9:00 صباحاً حتى 5:00 مساءً (بتوقيت السعودية)</p>
         </div>
       </div>
-    `
-  })
+    </div>
+  `
+})
+
 };
 
 // API endpoints
