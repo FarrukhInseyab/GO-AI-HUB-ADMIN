@@ -254,7 +254,7 @@ export const sendEmail = async (
     console.log('Email service URL:', EMAIL_SERVICE_URL);
     console.log('Sending payload with token length:', data.token ? data.token.length : 0);
     
-    const response = await fetch('http://localhost:3000/api/send-email', {
+    const response = await fetch(`${EMAIL_SERVICE_URL}/send-email`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
